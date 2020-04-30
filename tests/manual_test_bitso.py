@@ -26,7 +26,7 @@ print("Starting BitsoApi with the following parameters: ", sys.argv)
 # GET "/v3/balance/"
 # print(bitso.get_balances())
 
-#print(bitso.get_markets())
+# print(bitso.get_markets())
 # print(bitso.get_pair('ETH/USDC'))
 
 # GET "/api/v1/orders"

@@ -1,6 +1,6 @@
 # This file is part of Maker Keeper Framework.
 #
-# Copyright (C) 2020 MikeHathaway 
+# Copyright (C) 2020 MikeHathaway
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,8 @@ from pymaker import Wad
 from pyexchange.etoro import EToroApi, Order, Trade
 
 # Models HTTP response, produced by EToroMockServer
+
+
 class MockedResponse:
     def __init__(self, text: str, status_code=200):
         assert (isinstance(text, str))
@@ -38,6 +40,8 @@ class MockedResponse:
         return json.loads(self.text)
 
 # Determines response to provide based on the requested URL
+
+
 class EToroMockServer:
     # Read JSON responses from a pipe-delimited file, avoiding JSON-inside-JSON parsing complexities
     responses = {}
@@ -73,7 +77,8 @@ class EToroMockServer:
         elif re.search(r"\/api\/v1\/trades", url):
             return MockedResponse(text=EToroMockServer.responses["trades"])
         else:
-            raise ValueError("Unable to match HTTP GET request to canned response", url)
+            raise ValueError(
+                "Unable to match HTTP GET request to canned response", url)
 
     @staticmethod
     def handle_post(url: str, data):
@@ -83,29 +88,32 @@ class EToroMockServer:
         # elif re.search(r"\/api\/v1\/orders", url):
         #     return MockedResponse(text=EToroMockServer.responses["place_order_failure"])
         else:
-            raise ValueError("Unable to match HTTP POST request to canned response", url, data)
+            raise ValueError(
+                "Unable to match HTTP POST request to canned response", url, data)
 
-    
     @staticmethod
     def handle_delete(url: str):
         if re.search(r"\/api\/v1\/orders\/[\w\-_]+", url):
             return MockedResponse(text=EToroMockServer.responses["cancel_order"])
         else:
-            raise ValueError("Unable to match HTTP DELETE request to canned response", url)
+            raise ValueError(
+                "Unable to match HTTP DELETE request to canned response", url)
+
 
 class TestEToro:
     def setup_method(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
         self.etoro = EToroApi(
-            api_server = "localhost",
-            account = "test-account",
-            api_key = "00000000-0000-0000-0000-000000000000",
-            secret_key = open(os.path.join(cwd, "mock/etoro-test-key"), "r"),
-            timeout = 15.5
+            api_server="localhost",
+            account="test-account",
+            api_key="00000000-0000-0000-0000-000000000000",
+            secret_key=open(os.path.join(cwd, "mock/etoro-test-key"), "r"),
+            timeout=15.5
         )
 
     def test_get_markets(self, mocker):
-        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_markets()
         assert(len(response) > 0)
         assert(any(x["id"] == "ethusdc" for x in response))
@@ -125,7 +133,8 @@ class TestEToro:
         assert(order.price == order.buy_to_sell_price)
 
     def test_get_balances(self, mocker):
-        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_balances()
         assert(len(response) > 0)
         for balance in response:
@@ -157,10 +166,11 @@ class TestEToro:
         else:
             print("no duplicates were found")
         assert(duplicate_count == 0)
-        
+
     def test_get_orders(self, mocker):
         pair = "ethusdc"
-        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_orders(pair, "open")
         assert (len(response) > 0)
         for order in response:
@@ -171,8 +181,10 @@ class TestEToro:
     def test_order_placement_and_cancellation(self, mocker):
         pair = "ethusdc"
         side = "ask"
-        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
-        order_id = self.etoro.place_order(pair, side, Wad.from_number(639.3), Wad.from_number(0.15))
+        mocker.patch("requests.request",
+                     side_effect=EToroMockServer.handle_request)
+        order_id = self.etoro.place_order(
+            pair, side, Wad.from_number(639.3), Wad.from_number(0.15))
         assert(isinstance(order_id, str))
         assert(order_id is not None)
         cancel_result = self.etoro.cancel_order(order_id)
@@ -209,7 +221,8 @@ class TestEToro:
 
     def test_get_trades(self, mocker):
         pair = "ethusdc"
-        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_trades(pair)
         assert (len(response) > 0)
         TestEToro.check_trades(response)

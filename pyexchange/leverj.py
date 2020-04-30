@@ -88,7 +88,8 @@ class Trade:
                  is_sell: bool,
                  price: Wad,
                  amount: Wad):
-        assert(isinstance(trade_id, int) or (trade_id is None) or isinstance(trade_id, str))
+        assert(isinstance(trade_id, int) or (
+            trade_id is None) or isinstance(trade_id, str))
         assert(isinstance(timestamp, int))
         assert(isinstance(pair, str))
         assert(isinstance(is_sell, bool))
@@ -105,11 +106,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.pair == other.pair and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount
+            self.timestamp == other.timestamp and \
+            self.pair == other.pair and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -162,7 +163,8 @@ class LeverjAPI(PyexAPI):
         self.timeout = timeout
         self.config = requests.get(url).json()
 
-        self.logger.info(f"LEVERJ: account id is {self.account_id} and web3.eth.default account is {self.web3.eth.defaultAccount}")
+        self.logger.info(
+            f"LEVERJ: account id is {self.account_id} and web3.eth.default account is {self.web3.eth.defaultAccount}")
 
     def get_account(self):
         return self._http_authenticated("GET", "/api/v1", "/account", None)
@@ -214,7 +216,7 @@ class LeverjAPI(PyexAPI):
 
     def get_orders(self, pair: str) -> List[Order]:
         assert(isinstance(pair, str))
-        result_pair =  []
+        result_pair = []
         result = self._http_authenticated("GET", "/api/v1", "/order", None)
         for item in result:
             if item['instrument'] == pair:
@@ -225,8 +227,9 @@ class LeverjAPI(PyexAPI):
         assert(isinstance(pair, str))
         assert(isinstance(page_number, int))
         count = 200
-        result_pair =  []
-        result = self._http_authenticated("GET", "/api/v1", f"/account/execution?count={count}", None)
+        result_pair = []
+        result = self._http_authenticated(
+            "GET", "/api/v1", f"/account/execution?count={count}", None)
         for item in result:
             if item['instrument'] == pair:
                 result_pair.append(item)
@@ -236,7 +239,8 @@ class LeverjAPI(PyexAPI):
     def get_all_trades(self, pair: str, page_number: int = 1) -> List[Trade]:
         assert(isinstance(pair, str))
         assert(isinstance(page_number, int))
-        result = self._http_authenticated("GET", "/api/v1", f"/instrument/{pair}/trade", None)
+        result = self._http_authenticated(
+            "GET", "/api/v1", f"/instrument/{pair}/trade", None)
 
         return list(map(lambda item: Trade.from_all_list(pair, item), result))
 
@@ -247,19 +251,22 @@ class LeverjAPI(PyexAPI):
         return self._http_authenticated("GET", "/api/v1", f"/instrument/{symbol}/orderbook", None)
 
     def createNewOrder(self, side: str, price: str, quantity: str, orderInstrument: dict) -> dict:
-        precision = self.get_product(orderInstrument['symbol'])['quoteSignificantDigits']
-        qty_precision = self.get_product(orderInstrument['symbol'])['baseSignificantDigits']
+        precision = self.get_product(orderInstrument['symbol'])[
+            'quoteSignificantDigits']
+        qty_precision = self.get_product(orderInstrument['symbol'])[
+            'baseSignificantDigits']
         order = {
-                'orderType': 'LMT',
-                'side': side,
-                'price': round(float(price), precision),
-                'quantity': round(float(quantity),qty_precision),
-                'timestamp': int(time.time()*1000000),
-                'accountId': self.account_id,
-                'token': orderInstrument['quote']['address'],
-                'instrument': orderInstrument['symbol']
-                }
-        order['signature'] = sign_order(order, orderInstrument, self.api_secret)
+            'orderType': 'LMT',
+            'side': side,
+            'price': round(float(price), precision),
+            'quantity': round(float(quantity), qty_precision),
+            'timestamp': int(time.time()*1000000),
+            'accountId': self.account_id,
+            'token': orderInstrument['quote']['address'],
+            'instrument': orderInstrument['symbol']
+        }
+        order['signature'] = sign_order(
+            order, orderInstrument, self.api_secret)
         return order
 
     def place_order(self, pair: str, is_sell: bool, price: Wad, amount: Wad):
@@ -279,7 +286,8 @@ class LeverjAPI(PyexAPI):
     def cancel_order(self, order_id: str) -> bool:
         assert(isinstance(order_id, str))
 
-        result = self._http_authenticated("DELETE", "/api/v1", f"/order/{order_id}", None)
+        result = self._http_authenticated(
+            "DELETE", "/api/v1", f"/order/{order_id}", None)
 
         if order_id != result[0][0]:
             return False
@@ -310,8 +318,7 @@ class LeverjAPI(PyexAPI):
             'method': method,
             'uri': resource,
             'nonce': nonce
-            }
-
+        }
 
         if body is not None:
             params['body'] = body
@@ -326,7 +333,7 @@ class LeverjAPI(PyexAPI):
             f".{bytes_to_hexstring(r)}"\
             f".{bytes_to_hexstring(s)}"
 
-        headers={ "Authorization": auth_header, "Nonce": str(nonce) }
+        headers = {"Authorization": auth_header, "Nonce": str(nonce)}
         if body is not None:
             headers["Content-Type"] = "application/json"
 
@@ -343,14 +350,17 @@ class LeverjAPI(PyexAPI):
 
     def _result(self, result) -> Optional[dict]:
         if not result.ok:
-            raise Exception(f"Leverj API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"Leverj API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"Leverj API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"Leverj API invalid JSON response: {http_response_summary(result)}")
 
         return data
+
 
 class LeverJ(Contract):
     """A client for the Leverj proxy exchange contract.
@@ -379,8 +389,9 @@ class LeverJ(Contract):
         assert(isinstance(token_address, str))
         assert(isinstance(amount, int))
 
-        token_contract = self._get_contract(self.web3, self.token_abi, Address(token_address))
-        return Transact(self, self.web3, self.token_abi, Address(token_address), token_contract, "approve",[self.address.address, int(amount)], {}).transact(from_address=self.middle_account)
+        token_contract = self._get_contract(
+            self.web3, self.token_abi, Address(token_address))
+        return Transact(self, self.web3, self.token_abi, Address(token_address), token_contract, "approve", [self.address.address, int(amount)], {}).transact(from_address=self.middle_account)
 
     def deposit_ether(self, leverjobj: LeverjAPI, amount: Wad, gluon_block_number):
         assert(isinstance(leverjobj, LeverjAPI))
@@ -389,11 +400,14 @@ class LeverJ(Contract):
         custodian_account = self.address
         app_id = leverjobj.get_spot_exchange_id()
         if gluon_block_number is None:
-            gluon_block_number = leverjobj._http_authenticated("GET", "/api/v1", f"/plasma/{app_id}", None)['number'] + 2
-            receipt = Transact(self, self.web3, self.abi, self.address, self._contract, "depositEther",[app_id], {'value': int(amount.value)}).transact(from_address=self.middle_account)
+            gluon_block_number = leverjobj._http_authenticated(
+                "GET", "/api/v1", f"/plasma/{app_id}", None)['number'] + 2
+            receipt = Transact(self, self.web3, self.abi, self.address, self._contract, "depositEther", [
+                               app_id], {'value': int(amount.value)}).transact(from_address=self.middle_account)
             return (gluon_block_number, receipt)
         else:
-            current_gluon_block = leverjobj._http_authenticated("GET", "/api/v1", f"/plasma/{app_id}", None)['number']
+            current_gluon_block = leverjobj._http_authenticated(
+                "GET", "/api/v1", f"/plasma/{app_id}", None)['number']
             if (current_gluon_block < gluon_block_number):
                 return (gluon_block_number, None)
             else:
@@ -407,11 +421,14 @@ class LeverJ(Contract):
         custodian_account = self.address
         app_id = leverjobj.get_spot_exchange_id()
         if gluon_block_number is None:
-            gluon_block_number = leverjobj._http_authenticated("GET", "/api/v1", f"/plasma/{app_id}", None)['number'] + 2
-            receipt = Transact(self, self.web3, self.abi, self.address, self._contract, "depositToken",[app_id, token_address, amount], {}).transact(from_address=self.middle_account)
+            gluon_block_number = leverjobj._http_authenticated(
+                "GET", "/api/v1", f"/plasma/{app_id}", None)['number'] + 2
+            receipt = Transact(self, self.web3, self.abi, self.address, self._contract, "depositToken", [
+                               app_id, token_address, amount], {}).transact(from_address=self.middle_account)
             return (gluon_block_number, receipt)
         else:
-            current_gluon_block = leverjobj._http_authenticated("GET", "/api/v1", f"/plasma/{app_id}", None)['number']
+            current_gluon_block = leverjobj._http_authenticated(
+                "GET", "/api/v1", f"/plasma/{app_id}", None)['number']
             if (current_gluon_block < gluon_block_number):
                 return (gluon_block_number, None)
             else:
@@ -423,11 +440,12 @@ class LeverJ(Contract):
         assert(isinstance(quantity, str))
 
         payload = {
-                    "txid": tx_hash,
-                    "asset": asset_addr,
-                    "quantity": quantity
-                  }
-        balance_dict = leverjobj._http_authenticated("POST", "/api/v1", "/account/deposit", payload)
+            "txid": tx_hash,
+            "asset": asset_addr,
+            "quantity": quantity
+        }
+        balance_dict = leverjobj._http_authenticated(
+            "POST", "/api/v1", "/account/deposit", payload)
         return balance_dict
 
     def withdraw_token(self, leverjobj: LeverjAPI, token_addr: str, quantity: int) -> int:
@@ -440,16 +458,20 @@ class LeverJ(Contract):
         custodian_account = self.address
         timestamp = int(time.time()*1000)
         api_secret = leverjobj.api_secret
-        sha3_hash =  Web3.soliditySha3(['string','string','uint256','uint256'],[ethereum_account, token_addr, int(quantity), timestamp])
-        signature = eth_sign(sha3_hash, leverjobj.web3, api_secret, True, self.middle_account)
+        sha3_hash = Web3.soliditySha3(['string', 'string', 'uint256', 'uint256'], [
+                                      ethereum_account, token_addr, int(quantity), timestamp])
+        signature = eth_sign(sha3_hash, leverjobj.web3,
+                             api_secret, True, self.middle_account)
         payload = {
-                    'asset': token_addr,
-                    'quantity': str(int(quantity)),
-                    'timestamp': timestamp,
-                    'signature': signature
-                  }
-        leverjobj._http_authenticated("POST", "/api/v1", "/account/withdraw", payload)
-        number_dict = leverjobj._http_authenticated("GET", "/api/v1", f"/plasma/{app_id}", None)
+            'asset': token_addr,
+            'quantity': str(int(quantity)),
+            'timestamp': timestamp,
+            'signature': signature
+        }
+        leverjobj._http_authenticated(
+            "POST", "/api/v1", "/account/withdraw", payload)
+        number_dict = leverjobj._http_authenticated(
+            "GET", "/api/v1", f"/plasma/{app_id}", None)
         return number_dict['number']+3
 
     def claim_funds(self, leverjobj: LeverjAPI, asset: str, quantity: int, gluon_block_number):
@@ -458,7 +480,8 @@ class LeverJ(Contract):
         assert(isinstance(quantity, int))
 
         app_id = leverjobj.get_spot_exchange_id()
-        current_block = leverjobj._http_authenticated("GET", "/api/v1", f"/plasma/{app_id}", None)['number']
+        current_block = leverjobj._http_authenticated(
+            "GET", "/api/v1", f"/plasma/{app_id}", None)['number']
 
         if gluon_block_number is None:
             return self.withdraw_token(leverjobj, asset, int(quantity))
@@ -467,19 +490,18 @@ class LeverJ(Contract):
             if current_block >= gluon_block_number:
                 ethereum_account = leverjobj.account_id
                 custodian_account = self.address
-                self.logger.info(f"LEVERJ: ethereum_account: {ethereum_account}, custodian_account: {custodian_account}, asset: {asset}")
-                response = leverjobj._http_authenticated("GET", "/api/v1", f"/plasma/{app_id}/evmparams/withdrawals/account/{ethereum_account}/asset/{asset}", None)
+                self.logger.info(
+                    f"LEVERJ: ethereum_account: {ethereum_account}, custodian_account: {custodian_account}, asset: {asset}")
+                response = leverjobj._http_authenticated(
+                    "GET", "/api/v1", f"/plasma/{app_id}/evmparams/withdrawals/account/{ethereum_account}/asset/{asset}", None)
                 response_app_id = int(response[0])
                 response_bytes = response[1]
-                self.logger.info(f"LEVERJ: finally gluon_block_number reached {gluon_block_number} and we are running final transact")
-                Transact(self, self.web3, self.abi, self.address, self._contract, "withdraw",[response_app_id, response_bytes], {}).transact(from_address=self.middle_account)
+                self.logger.info(
+                    f"LEVERJ: finally gluon_block_number reached {gluon_block_number} and we are running final transact")
+                Transact(self, self.web3, self.abi, self.address, self._contract, "withdraw", [
+                         response_app_id, response_bytes], {}).transact(from_address=self.middle_account)
                 return None
 
-        self.logger.info(f'LEVERJ: does not look like gluon_block_number reached {gluon_block_number} and we are currently at {current_block}')
+        self.logger.info(
+            f'LEVERJ: does not look like gluon_block_number reached {gluon_block_number} and we are currently at {current_block}')
         return gluon_block_number
-
-
-
-
-
-

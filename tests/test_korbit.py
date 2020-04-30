@@ -1,6 +1,6 @@
 # This file is part of Maker Keeper Framework.
 #
-# Copyright (C) 2020 MikeHathaway 
+# Copyright (C) 2020 MikeHathaway
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,8 @@ from pymaker import Wad
 from pyexchange.korbit import KorbitApi, Order, Trade
 
 # Models HTTP response, produced by KorbitMockServer
+
+
 class MockedResponse:
     def __init__(self, text: str, status_code=200):
         assert (isinstance(text, str))
@@ -38,6 +40,8 @@ class MockedResponse:
         return json.loads(self.text)
 
 # Determines response to provide based on the requested URL
+
+
 class KorbitMockServer:
     # Read JSON responses from a pipe-delimited file, avoiding JSON-inside-JSON parsing complexities
     responses = {}
@@ -71,9 +75,10 @@ class KorbitMockServer:
         elif re.search(r"v1\/user\/transactions", url):
             return MockedResponse(text=KorbitMockServer.responses["user_trades"])
         elif re.search(r"v1\/transactions", url):
-            return MockedResponse(text=KorbitMockServer.responses["all_trades"])            
+            return MockedResponse(text=KorbitMockServer.responses["all_trades"])
         else:
-            raise ValueError("Unable to match HTTP GET request to canned response", url)
+            raise ValueError(
+                "Unable to match HTTP GET request to canned response", url)
 
     @staticmethod
     def handle_post(url: str, data):
@@ -85,21 +90,23 @@ class KorbitMockServer:
         elif re.search(r"v1\/oauth2\/access_token", url):
             return MockedResponse(text=KorbitMockServer.responses["access_token"])
         else:
-            raise ValueError("Unable to match HTTP POST request to canned response", url, data)
+            raise ValueError(
+                "Unable to match HTTP POST request to canned response", url, data)
 
 
 class TestKorbit:
     def setup_method(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
         self.korbit = KorbitApi(
-            api_server = "localhost",
-            api_key = "00000000-0000-0000-0000-000000000000",
-            secret_key = "secretkey",
-            timeout = 15.5
+            api_server="localhost",
+            api_key="00000000-0000-0000-0000-000000000000",
+            secret_key="secretkey",
+            timeout=15.5
         )
 
     def test_get_markets(self, mocker):
-        mocker.patch("requests.request", side_effect=KorbitMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=KorbitMockServer.handle_request)
         response = self.korbit.get_markets()
         assert(len(response) > 0)
         assert(response["dai_krw"] is not None)
@@ -119,7 +126,8 @@ class TestKorbit:
         assert(order.price == order.buy_to_sell_price)
 
     def test_get_balances(self, mocker):
-        mocker.patch("requests.request", side_effect=KorbitMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=KorbitMockServer.handle_request)
         response = self.korbit.get_balances()
         assert(len(response) > 0)
         assert(int(response["dai"]["available"]) > 0)
@@ -149,10 +157,11 @@ class TestKorbit:
         else:
             print("no duplicates were found")
         assert(duplicate_count == 0)
-        
+
     def test_get_orders(self, mocker):
         pair = "dai_krw"
-        mocker.patch("requests.request", side_effect=KorbitMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=KorbitMockServer.handle_request)
         response = self.korbit.get_orders(pair)
         assert (len(response) > 0)
         for order in response:
@@ -163,8 +172,10 @@ class TestKorbit:
     def test_order_placement_and_cancellation(self, mocker):
         pair = "dai_krw"
         side = "ask"
-        mocker.patch("requests.request", side_effect=KorbitMockServer.handle_request)
-        order_id = self.korbit.place_order(pair, True, Wad.from_number(1500), Wad.from_number(10))
+        mocker.patch("requests.request",
+                     side_effect=KorbitMockServer.handle_request)
+        order_id = self.korbit.place_order(
+            pair, True, Wad.from_number(1500), Wad.from_number(10))
         assert(isinstance(order_id, int))
         assert(order_id is not None)
         cancel_result = self.korbit.cancel_order(order_id, pair)
@@ -201,14 +212,16 @@ class TestKorbit:
 
     def test_get_trades(self, mocker):
         pair = "dai_krw"
-        mocker.patch("requests.request", side_effect=KorbitMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=KorbitMockServer.handle_request)
         response = self.korbit.get_trades(pair)
         assert (len(response) > 0)
         TestKorbit.check_trades(response)
 
     def test_get_all_trades(self, mocker):
         pair = "bat_krw"
-        mocker.patch("requests.request", side_effect=KorbitMockServer.handle_request)
+        mocker.patch("requests.request",
+                     side_effect=KorbitMockServer.handle_request)
         response = self.korbit.get_all_trades(pair)
         assert (len(response) > 0)
         TestKorbit.check_trades(response)

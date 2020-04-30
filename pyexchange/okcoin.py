@@ -26,6 +26,7 @@ from pymaker import Address, Wad
 from pymaker.util import http_response_summary
 from typing import Optional, List
 
+
 class OkcoinApi(OKEXApi):
     """Okcoin API interface.
 
@@ -58,8 +59,8 @@ class OkcoinApi(OKEXApi):
         data = {
             "amount": str(amount),
             "currency": currency,
-            "from": 6, # Funding Account
-            "to": 1 # Spot Account
+            "from": 6,  # Funding Account
+            "to": 1  # Spot Account
         }
 
         transfer = self._http_post(f"/api/account/v3/transfer", data)

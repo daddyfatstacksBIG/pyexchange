@@ -1,6 +1,6 @@
 # This file is part of Maker Keeper Framework.
 #
-# Copyright (C) 2020 MikeHathaway 
+# Copyright (C) 2020 MikeHathaway
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -35,10 +35,11 @@ from pyexchange.api import PyexAPI
 from pymaker.numeric import Wad
 from pymaker.util import http_response_summary
 
+
 class Order:
     def __init__(self,
                  order_id: str,
-                 timestamp: str, # current UTC time at order placement
+                 timestamp: str,  # current UTC time at order placement
                  book: str,
                  is_sell: bool,
                  price: Wad,
@@ -91,6 +92,7 @@ class Order:
                      price=Wad.from_number(item['price']),
                      amount=Wad.from_number(item['original_amount']))
 
+
 class Trade:
     def __init__(self,
                  trade_id: str,
@@ -116,11 +118,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.pair == other.pair and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount
+            self.timestamp == other.timestamp and \
+            self.pair == other.pair and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -175,13 +177,14 @@ class BitsoApi(PyexAPI):
 
         # Params for filtering orders
         params = {
-            "book": book, # REQUIRED: pair being traded
-            "marker": marker, # OPTIONAL: order id to compare placement time against when used with sort
-            "sort": sort, # OPTIONAL: sort direction of returned orders
-            "limit": limit # OPtional: number or orders to return, max 100
+            "book": book,  # REQUIRED: pair being traded
+            "marker": marker,  # OPTIONAL: order id to compare placement time against when used with sort
+            "sort": sort,  # OPTIONAL: sort direction of returned orders
+            "limit": limit  # OPtional: number or orders to return, max 100
         }
 
-        orders = self._http_authenticated_request("GET", "/v3/open_orders", params)
+        orders = self._http_authenticated_request(
+            "GET", "/v3/open_orders", params)
         return list(map(lambda item: Order.from_message(item), orders["payload"]))
 
     # Trading: Submits and awaits acknowledgement of an (exclusively) limit order,
@@ -194,13 +197,12 @@ class BitsoApi(PyexAPI):
 
         client_id = str(uuid.uuid4())
 
-        
         request_body = {
-            "book": book, # REQUIRED
-            "side": side, # REQUIRED
-            "type": "limit", # REQUIRED: we exclusively trade limit orders
-            "major": str(amount), # Amount of major currency being ordered
-            "price": str(price), # max precision is 8 decimals
+            "book": book,  # REQUIRED
+            "side": side,  # REQUIRED
+            "type": "limit",  # REQUIRED: we exclusively trade limit orders
+            "major": str(amount),  # Amount of major currency being ordered
+            "price": str(price),  # max precision is 8 decimals
             "time_in_force": "goodtillcancelled",
             "client_id": client_id
         }
@@ -210,10 +212,12 @@ class BitsoApi(PyexAPI):
         self.logger.info(f"Placing order ({order_type}, amount {amount} of {book},"
                          f" price {price}), and client_id: {client_id}")
 
-        response = self._http_authenticated_request("POST", f"/v3/orders", {}, request_body)["payload"]
+        response = self._http_authenticated_request(
+            "POST", f"/v3/orders", {}, request_body)["payload"]
         order_id = response['oid']
 
-        self.logger.info(f"Placed order type {order_type}, order_id #{order_id}, and client_id: {client_id}")
+        self.logger.info(
+            f"Placed order type {order_type}, order_id #{order_id}, and client_id: {client_id}")
         return order_id
 
     def cancel_order(self, order_id: str) -> bool:
@@ -221,7 +225,8 @@ class BitsoApi(PyexAPI):
 
         self.logger.info(f"Cancelling order #{order_id}...")
 
-        result = self._http_authenticated_request("DELETE", f"/v3/orders/{order_id}", {})
+        result = self._http_authenticated_request(
+            "DELETE", f"/v3/orders/{order_id}", {})
         return result["success"]
 
     # Trading: Retrieves most recent trades for a given order_id or client_id.
@@ -230,40 +235,47 @@ class BitsoApi(PyexAPI):
         assert(isinstance(page_number, int))
 
         params = {
-            "book": self._format_pair_string(book), # REQUIRED: pair being traded
-            "limit": 100 # OPtional: number or orders to return, max 100
+            # REQUIRED: pair being traded
+            "book": self._format_pair_string(book),
+            "limit": 100  # OPtional: number or orders to return, max 100
         }
 
-        result = self._http_authenticated_request("GET", f"/v3/user_trades", params)
+        result = self._http_authenticated_request(
+            "GET", f"/v3/user_trades", params)
         return list(map(lambda item: Trade(trade_id=item['tid'],
-                                           timestamp=self._iso8601_to_unix(item['created_at']),
+                                           timestamp=self._iso8601_to_unix(
+                                               item['created_at']),
                                            pair=item['book'],
                                            is_sell=item['side'] == 'bid',
-                                           price=Wad.from_number(item['price']),
+                                           price=Wad.from_number(
+                                               item['price']),
                                            amount=Wad.from_number(abs(float(item['major'])))), result["payload"]))
 
     def get_all_trades(self, book: str, page_number: int = 1) -> List[Trade]:
         # Params for filtering orders
         params = {
-            "book": self._format_pair_string(book), # REQUIRED: pair being traded
-            "limit": 100 # OPtional: number or orders to return, max 100
+            # REQUIRED: pair being traded
+            "book": self._format_pair_string(book),
+            "limit": 100  # OPtional: number or orders to return, max 100
         }
         result = self._http_request("GET", "/v3/trades", params)["payload"]
         return list(map(lambda item: Trade(trade_id=str(item['tid']),
-                                    timestamp=self._iso8601_to_unix(item['created_at']),
-                                    pair=item['book'],
-                                    is_sell=item['maker_side'] == 'buy',
-                                    price=Wad.from_number(item['price']),
-                                    amount=Wad.from_number(abs(float(item['amount'])))), result))
+                                           timestamp=self._iso8601_to_unix(
+                                               item['created_at']),
+                                           pair=item['book'],
+                                           is_sell=item['maker_side'] == 'buy',
+                                           price=Wad.from_number(
+                                               item['price']),
+                                           amount=Wad.from_number(abs(float(item['amount'])))), result))
 
     def _http_request(self, method: str, resource: str, params: dict):
         assert(isinstance(method, str))
         assert(isinstance(resource, str))
         assert(isinstance(params, dict) or (params is None))
 
-        url=f"{self.api_server}{resource}"
+        url = f"{self.api_server}{resource}"
         if params:
-            url=f"{self.api_server}{resource}?{urlencode(params)}"
+            url = f"{self.api_server}{resource}?{urlencode(params)}"
 
         return self._result(requests.request(method=method,
                                              url=url,
@@ -290,8 +302,8 @@ class BitsoApi(PyexAPI):
             message += json.dumps(data)
 
         signature = hmac.new(self.secret_key.encode('utf-8'),
-                                            message.encode('utf-8'),
-                                            hashlib.sha256).hexdigest()
+                             message.encode('utf-8'),
+                             hashlib.sha256).hexdigest()
         # Build the auth header
         auth_header = 'Bitso %s:%s:%s' % (self.api_key, nonce, signature)
 
@@ -301,26 +313,29 @@ class BitsoApi(PyexAPI):
 
         if method != "POST":
             return self._result(requests.request(method=method,
-                                             url=url,
-                                             headers=headers,
-                                             timeout=self.timeout))
+                                                 url=url,
+                                                 headers=headers,
+                                                 timeout=self.timeout))
 
         else:
             return self._result(requests.request(method=method,
-                                             url=url,
-                                             headers=headers,
-                                             json=data,
-                                             timeout=self.timeout))
+                                                 url=url,
+                                                 headers=headers,
+                                                 json=data,
+                                                 timeout=self.timeout))
+
     @staticmethod
     def _result(result) -> dict:
 
         if not result.ok:
-            raise ValueError(f"Bitso API invalid HTTP response: {http_response_summary(result)}")
+            raise ValueError(
+                f"Bitso API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except ValueError:
-            raise ValueError(f"Bitso API invalid JSON response: {http_response_summary(result)}")
+            raise ValueError(
+                f"Bitso API invalid JSON response: {http_response_summary(result)}")
 
         return data
 

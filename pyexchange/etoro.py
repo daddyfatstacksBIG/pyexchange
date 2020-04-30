@@ -1,6 +1,6 @@
 # This file is part of Maker Keeper Framework.
 #
-# Copyright (C) 2020 MikeHathaway 
+# Copyright (C) 2020 MikeHathaway
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -39,10 +39,11 @@ from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 
+
 class Order:
     def __init__(self,
                  order_id: str,
-                 timestamp: str, # current UTC time at order placement
+                 timestamp: str,  # current UTC time at order placement
                  pair: str,
                  is_sell: bool,
                  price: Wad,
@@ -89,11 +90,13 @@ class Order:
     @staticmethod
     def from_message(item):
         return Order(order_id=item['id'],
-                     timestamp=datetime.now(tz=timezone.utc).isoformat(), # No timestamp or created_at information is returned as part of get_orders()
+                     # No timestamp or created_at information is returned as part of get_orders()
+                     timestamp=datetime.now(tz=timezone.utc).isoformat(),
                      pair=item['instrument_id'],
                      is_sell=True if item['side'] == 'sell' else False,
                      price=Wad.from_number(item['price']),
                      amount=Wad.from_number(item['volume']))
+
 
 class Trade:
     def __init__(self,
@@ -120,11 +123,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.pair == other.pair and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount
+            self.timestamp == other.timestamp and \
+            self.pair == other.pair and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -177,7 +180,7 @@ class EToroApi(PyexAPI):
         assert(isinstance(order_id, str))
         return self._http_authenticated_request("GET", f"/api/v1/order/{order_id}", {})
 
-    # Trading: Retrieves 25 most recent orders for a particular pair, newest first, 
+    # Trading: Retrieves 25 most recent orders for a particular pair, newest first,
     # which have not been completely filled.
     def get_orders(self, pair: str, state: str, before: str = "", limit: int = 25) -> List[Order]:
         assert(isinstance(pair, str))
@@ -187,13 +190,14 @@ class EToroApi(PyexAPI):
 
         # Params for filtering orders
         params = {
-            "instrument_id": pair, # REQUIRED: pair being traded
-            "state": state, # REQUIRED: open, cancelled, executed
-            "before": before, # OPTIONAL: latest date from which to retreive orders
-            "limit": limit # OPTIONAL: number of orders to return, defaults to 25
+            "instrument_id": pair,  # REQUIRED: pair being traded
+            "state": state,  # REQUIRED: open, cancelled, executed
+            "before": before,  # OPTIONAL: latest date from which to retreive orders
+            "limit": limit  # OPTIONAL: number of orders to return, defaults to 25
         }
 
-        orders = self._http_authenticated_request("GET", "/api/v1/orders", params)
+        orders = self._http_authenticated_request(
+            "GET", "/api/v1/orders", params)
         return list(map(lambda item: Order.from_message(item), orders))
 
     # Trading: Submits and awaits acknowledgement of a limit order,
@@ -216,7 +220,8 @@ class EToroApi(PyexAPI):
         self.logger.info(f"Placing order ({order_type}, amount {amount} of {pair},"
                          f" price {price})...")
 
-        response = self._http_authenticated_request("POST", f"/api/v1/orders", {}, request_body)
+        response = self._http_authenticated_request(
+            "POST", f"/api/v1/orders", {}, request_body)
         order_id = response['id']
 
         self.logger.info(f"Placed order type {order_type}, id #{order_id}")
@@ -228,7 +233,8 @@ class EToroApi(PyexAPI):
 
         self.logger.info(f"Cancelling order #{order_id}...")
 
-        result = self._http_authenticated_request("DELETE", f"/api/v1/orders/{order_id}", {})
+        result = self._http_authenticated_request(
+            "DELETE", f"/api/v1/orders/{order_id}", {})
         return result
 
     # Trading: Retrieves most recent 100 trades for a pair.
@@ -245,17 +251,21 @@ class EToroApi(PyexAPI):
             # 'market': 'ethusdc' # OPTIONAL: Params for recieving trades in a given window
         }
 
-        result = self._http_authenticated_request("GET", "/api/v1/trades", params)
+        result = self._http_authenticated_request(
+            "GET", "/api/v1/trades", params)
         return list(map(lambda item: Trade(trade_id=item['trade_id'],
-                                           timestamp=int(dateutil.parser.parse(item['created_at']).timestamp()),
+                                           timestamp=int(dateutil.parser.parse(
+                                               item['created_at']).timestamp()),
                                            pair=item['instrument_id'],
                                            is_sell=item['side'] == 'bid',
-                                           price=Wad.from_number(item['price']),
+                                           price=Wad.from_number(
+                                               item['price']),
                                            amount=Wad.from_number(item['volume'])), result))
 
     def get_deposit_address(self, coin: str):
         assert(isinstance(coin, str))
-        result = self._http_authenticated_request("GET", f"/api/v1/funds/deposits/{coin}/address", {})
+        result = self._http_authenticated_request(
+            "GET", f"/api/v1/funds/deposits/{coin}/address", {})
 
         return result['address']
 
@@ -264,9 +274,9 @@ class EToroApi(PyexAPI):
         assert(isinstance(resource, str))
         assert(isinstance(params, dict) or (params is None))
 
-        url=f"{self.api_server}{resource}"
+        url = f"{self.api_server}{resource}"
         if params:
-            url=f"{self.api_server}{resource}?{urlencode(params)}"
+            url = f"{self.api_server}{resource}?{urlencode(params)}"
 
         return self._result(requests.request(method=method,
                                              url=url,
@@ -275,7 +285,7 @@ class EToroApi(PyexAPI):
     def _generate_signature(self, nonce: str, timestamp: str):
         assert(isinstance(nonce, str))
         assert(isinstance(timestamp, str))
-                
+
         message = f"{nonce}{timestamp}".encode('utf-8')
         hashed_message = SHA256.new(message)
 
@@ -285,7 +295,7 @@ class EToroApi(PyexAPI):
         # sign hashed message with RSA private key, and then base64 encode it
         # API Doc: https://legrandin.github.io/pycryptodome/Doc/3.4.6/Crypto.Signature.pkcs1_15-module.html
         return base64.b64encode(pkcs1_15.new(private_key).sign(hashed_message))
-        
+
     # Interprets the response to an HTTP GET, POST or DELETE request
     # All eToro requests other than retrieving server time require authentication
     def _http_authenticated_request(self, method: str, resource: str, params: dict, req_body: dict = {}):
@@ -305,31 +315,34 @@ class EToroApi(PyexAPI):
             "ex-access-sign": self._generate_signature(nonce, timestamp),
             "ex-access-nonce": nonce,
             "ex-access-timestamp": timestamp
-        } 
+        }
 
         url = f"{self.api_server}{resource}?{urlencode(params)}"
         if method != "POST":
             return self._result(requests.request(method=method,
-                                             url=url,
-                                             headers=headers,
-                                             timeout=self.timeout))
+                                                 url=url,
+                                                 headers=headers,
+                                                 timeout=self.timeout))
 
         else:
             return self._result(requests.request(method=method,
-                                             url=url,
-                                             headers=headers,
-                                             data=req_body,
-                                             timeout=self.timeout))
+                                                 url=url,
+                                                 headers=headers,
+                                                 data=req_body,
+                                                 timeout=self.timeout))
+
     @staticmethod
     def _result(result) -> dict:
 
         if not result.ok:
-            raise Exception(f"eToro API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"eToro API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"eToro API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"eToro API invalid JSON response: {http_response_summary(result)}")
 
         return data
 

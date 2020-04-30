@@ -268,7 +268,8 @@ class IDEXApi:
     def get_orders(self, pair: str) -> List[Order]:
         assert(isinstance(pair, str))
 
-        result = self._http_post("/returnOpenOrders", {'market': pair, 'address': self._our_address()})
+        result = self._http_post(
+            "/returnOpenOrders", {'market': pair, 'address': self._our_address()})
         return list(map(self._json_to_order, result))
 
     def place_order(self,
@@ -319,12 +320,14 @@ class IDEXApi:
             's': bytes_to_hexstring(s)
         }
 
-        self.logger.info(f"Placing order selling {pay_amount} {pay_token} for {buy_amount} {buy_token}...")
+        self.logger.info(
+            f"Placing order selling {pay_amount} {pay_token} for {buy_amount} {buy_token}...")
 
         result = self._http_post("/order", data)
         order = self._json_to_order(result)
 
-        self.logger.info(f"Placed order selling {pay_amount} {pay_token} for {buy_amount} {buy_token} as #{order.order_id}")
+        self.logger.info(
+            f"Placed order selling {pay_amount} {pay_token} for {buy_amount} {buy_token} as #{order.order_id}")
 
         return order
 
@@ -378,15 +381,18 @@ class IDEXApi:
     @staticmethod
     def _result(result) -> dict:
         if not result.ok:
-            raise Exception(f"IDEX API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"IDEX API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"IDEX API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"IDEX API invalid JSON response: {http_response_summary(result)}")
 
         if 'error' in data:
-            raise Exception(f"IDEX API negative response: {http_response_summary(result)}")
+            raise Exception(
+                f"IDEX API negative response: {http_response_summary(result)}")
 
         return data
 

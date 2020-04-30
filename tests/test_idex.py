@@ -39,7 +39,8 @@ class TestIDEX:
     def test_fail_when_no_contract_under_that_address(self):
         # expect
         with pytest.raises(Exception):
-            IDEX(web3=self.web3, address=Address('0xdeadadd1e5500000000000000000000000000000'))
+            IDEX(web3=self.web3, address=Address(
+                '0xdeadadd1e5500000000000000000000000000000'))
 
     def test_correct_deployment(self):
         # expect
@@ -49,13 +50,15 @@ class TestIDEX:
 
     def test_approval(self):
         # given
-        assert self.token.allowance_of(self.our_address, self.idex.address) == Wad(0)
+        assert self.token.allowance_of(
+            self.our_address, self.idex.address) == Wad(0)
 
         # when
         self.idex.approve([self.token], directly())
 
         # then
-        assert self.token.allowance_of(self.our_address, self.idex.address) > Wad(0)
+        assert self.token.allowance_of(
+            self.our_address, self.idex.address) > Wad(0)
 
     def test_deposit_and_balance_of_and_withdraw_for_raw_eth(self):
         # when
@@ -75,16 +78,20 @@ class TestIDEX:
         self.idex.approve([self.token], directly())
 
         # when
-        self.idex.deposit_token(self.token.address, Wad.from_number(13)).transact()
+        self.idex.deposit_token(
+            self.token.address, Wad.from_number(13)).transact()
 
         # then
-        assert self.idex.balance_of_token(self.token.address, self.our_address) == Wad.from_number(13)
+        assert self.idex.balance_of_token(
+            self.token.address, self.our_address) == Wad.from_number(13)
 
         # when
-        self.idex.withdraw_token(self.token.address, Wad.from_number(2.5)).transact()
+        self.idex.withdraw_token(
+            self.token.address, Wad.from_number(2.5)).transact()
 
         # then
-        assert self.idex.balance_of_token(self.token.address, self.our_address) == Wad.from_number(10.5)
+        assert self.idex.balance_of_token(
+            self.token.address, self.our_address) == Wad.from_number(10.5)
 
     def test_should_have_printable_representation(self):
         assert repr(self.idex) == f"IDEX('{self.idex.address}')"

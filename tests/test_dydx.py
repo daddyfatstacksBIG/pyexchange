@@ -1,6 +1,6 @@
 # This file is part of Maker Keeper Framework.
 #
-# Copyright (C) 2020 MikeHathaway 
+# Copyright (C) 2020 MikeHathaway
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,8 @@ from pyexchange.dydx import DydxApi, Order, Trade
 # Therefore, mock data was used.
 
 # Models HTTP response, produced by DydxMockServer
+
+
 class MockedResponse:
     def __init__(self, text: str, status_code=200):
         assert (isinstance(text, str))
@@ -40,6 +42,8 @@ class MockedResponse:
         return json.loads(self.text)
 
 # Determines response based upon the DyDx Client method used
+
+
 class DydxMockServer:
     # Read JSON responses from a pipe-delimited file, avoiding JSON-inside-JSON parsing complexities
     responses = {}
@@ -75,6 +79,7 @@ class DydxMockServer:
     def handle_get_trades(**kwargs):
         return MockedResponse(text=DydxMockServer.responses["trades"]).json()
 
+
 class TestDydx:
     def setup_method(self):
         self.dydx = DydxApi(
@@ -83,7 +88,8 @@ class TestDydx:
         )
 
     def test_get_markets(self, mocker):
-        mocker.patch("dydx.client.Client.get_markets", side_effect=DydxMockServer.handle_get_pairs)
+        mocker.patch("dydx.client.Client.get_markets",
+                     side_effect=DydxMockServer.handle_get_pairs)
         response = self.dydx.get_markets()
         assert(len(response) > 0)
         assert("WETH-DAI" in response)
@@ -104,7 +110,8 @@ class TestDydx:
         assert(order.price == order.buy_to_sell_price)
 
     def test_get_balances(self, mocker):
-        mocker.patch("dydx.client.Client.get_my_balances", side_effect=DydxMockServer.handle_get_balances)
+        mocker.patch("dydx.client.Client.get_my_balances",
+                     side_effect=DydxMockServer.handle_get_balances)
         response = self.dydx.get_balances()
         assert(len(response) > 0)
         for balance in response:
@@ -136,10 +143,11 @@ class TestDydx:
         else:
             print("no duplicates were found")
         assert(duplicate_count == 0)
-        
+
     def test_get_orders(self, mocker):
         instrument_id = "WETH-DAI"
-        mocker.patch("dydx.client.Client.get_my_orders", side_effect=DydxMockServer.handle_get_orders)
+        mocker.patch("dydx.client.Client.get_my_orders",
+                     side_effect=DydxMockServer.handle_get_orders)
         response = self.dydx.get_orders(instrument_id)
         assert (len(response) > 0)
         for order in response:
@@ -150,8 +158,10 @@ class TestDydx:
     def test_order_placement_and_cancellation(self, mocker):
         instrument_id = "WETH-DAI"
         side = "sell"
-        mocker.patch("dydx.client.Client.place_order", side_effect=DydxMockServer.handle_place_order)
-        mocker.patch("dydx.client.Client.cancel_order", side_effect=DydxMockServer.handle_cancel_order)
+        mocker.patch("dydx.client.Client.place_order",
+                     side_effect=DydxMockServer.handle_place_order)
+        mocker.patch("dydx.client.Client.cancel_order",
+                     side_effect=DydxMockServer.handle_cancel_order)
         order_id = self.dydx.place_order(instrument_id, False, 135.000, 0.1)
         assert(isinstance(order_id, str))
         assert(order_id is not None)
@@ -189,7 +199,8 @@ class TestDydx:
 
     def test_get_trades(self, mocker):
         instrument_id = "WETH-DAI"
-        mocker.patch("dydx.client.Client.get_my_fills", side_effect=DydxMockServer.handle_get_trades)
+        mocker.patch("dydx.client.Client.get_my_fills",
+                     side_effect=DydxMockServer.handle_get_trades)
         response = self.dydx.get_trades(instrument_id)
         assert (len(response) > 0)
         TestDydx.check_trades(response)

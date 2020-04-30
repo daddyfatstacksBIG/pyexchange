@@ -109,11 +109,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.pair == other.pair and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount
+            self.timestamp == other.timestamp and \
+            self.pair == other.pair and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -164,7 +164,8 @@ class BittrexApi(PyexAPI):
             'market': pair
         }
 
-        orders = self._http_authenticated_request("GET", "/api/v1.1/market/getopenorders", params)['result']
+        orders = self._http_authenticated_request(
+            "GET", "/api/v1.1/market/getopenorders", params)['result']
 
         return list(map(lambda item: Order.to_order(item), orders))
 
@@ -185,10 +186,12 @@ class BittrexApi(PyexAPI):
         self.logger.info(f"Placing order ({order_type}, amount {params['quantity']} of {pair},"
                          f" price {params['rate']})...")
 
-        response = self._http_authenticated_request("GET", f"/api/v1.1/market/{order_type}", params)
+        response = self._http_authenticated_request(
+            "GET", f"/api/v1.1/market/{order_type}", params)
 
         if response['success'] is False:
-            raise Exception(f"Bittrex Failed to place order {response['message']}")
+            raise Exception(
+                f"Bittrex Failed to place order {response['message']}")
 
         order_id = response['result']['uuid']
 
@@ -205,7 +208,8 @@ class BittrexApi(PyexAPI):
             "uuid": order_id
         }
 
-        result = self._http_authenticated_request("GET", "/api/v1.1/market/cancel", params)
+        result = self._http_authenticated_request(
+            "GET", "/api/v1.1/market/cancel", params)
 
         return result['success']
 
@@ -218,13 +222,16 @@ class BittrexApi(PyexAPI):
             'market': pair
         }
 
-        result = self._http_authenticated_request("GET", "/api/v1.1/account/getorderhistory", params)['result']
+        result = self._http_authenticated_request(
+            "GET", "/api/v1.1/account/getorderhistory", params)['result']
 
         return list(map(lambda item: Trade(trade_id=item['OrderUuid'],
-                                           timestamp=int(dateutil.parser.parse(item['TimeStamp'] + 'Z').timestamp()),
+                                           timestamp=int(dateutil.parser.parse(
+                                               item['TimeStamp'] + 'Z').timestamp()),
                                            pair=item['Exchange'],
                                            is_sell=item['OrderType'] == 'LIMIT_SELL',
-                                           price=Wad.from_number(item['PricePerUnit']),
+                                           price=Wad.from_number(
+                                               item['PricePerUnit']),
                                            amount=Wad.from_number(item['Quantity'] - item['QuantityRemaining'])), result))
 
     def get_all_trades(self, pair: str, page_number: int = 1) -> List[Trade]:
@@ -236,13 +243,16 @@ class BittrexApi(PyexAPI):
             'market': pair
         }
 
-        result = self._http_request("GET", "/api/v1.1/public/getmarkethistory", params)['result']
+        result = self._http_request(
+            "GET", "/api/v1.1/public/getmarkethistory", params)['result']
 
         return list(map(lambda item: Trade(trade_id=item['Uuid'],
-                                           timestamp=int(dateutil.parser.parse(item['TimeStamp'] + 'Z').timestamp()),
+                                           timestamp=int(dateutil.parser.parse(
+                                               item['TimeStamp'] + 'Z').timestamp()),
                                            pair=pair,
                                            is_sell=item['OrderType'] == 'SELL',
-                                           price=Wad.from_number(item['Price']),
+                                           price=Wad.from_number(
+                                               item['Price']),
                                            amount=Wad.from_number(item['Quantity'])), result))
 
     def _http_request(self, method: str, resource: str, params: dict):
@@ -250,9 +260,9 @@ class BittrexApi(PyexAPI):
         assert(isinstance(resource, str))
         assert(isinstance(params, dict) or (params is None))
 
-        url=f"{self.api_server}{resource}"
+        url = f"{self.api_server}{resource}"
         if params:
-            url=f"{self.api_server}{resource}?{urlencode(params)}"
+            url = f"{self.api_server}{resource}?{urlencode(params)}"
 
         return self._result(requests.request(method=method,
                                              url=url,
@@ -268,23 +278,25 @@ class BittrexApi(PyexAPI):
 
         url = f"{self.api_server}{resource}?{urlencode(params)}"
 
-        signature = hmac.new(self.secret_key.encode(), url.encode(), hashlib.sha512).hexdigest()
+        signature = hmac.new(self.secret_key.encode(),
+                             url.encode(), hashlib.sha512).hexdigest()
 
         return self._result(requests.request(method=method,
                                              url=url,
-                                             headers ={'apisign': signature},
+                                             headers={'apisign': signature},
                                              timeout=self.timeout))
 
     @staticmethod
     def _result(result) -> dict:
 
         if not result.ok:
-            raise Exception(f"Bittrex API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"Bittrex API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"Bittrex API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"Bittrex API invalid JSON response: {http_response_summary(result)}")
 
         return data
-

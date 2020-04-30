@@ -77,7 +77,7 @@ class Order:
         assert(isinstance(other, Order))
 
         return self.order_id == other.order_id and \
-               self.pair == other.pair
+            self.pair == other.pair
 
     def __hash__(self):
         return hash((self.order_id, self.pair))
@@ -120,11 +120,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.pair == other.pair and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount
+            self.timestamp == other.timestamp and \
+            self.pair == other.pair and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -228,7 +228,8 @@ class KrakenApi(PyexAPI):
         assert(isinstance(order_id, str))
 
         self.logger.info(f"Cancelling order #{order_id}...")
-        self._http_authenticated("POST", "/0/private/CancelOrder", {'txid': order_id})
+        self._http_authenticated(
+            "POST", "/0/private/CancelOrder", {'txid': order_id})
 
         return True
 
@@ -237,7 +238,8 @@ class KrakenApi(PyexAPI):
         assert(isinstance(page_number, int))
         assert(page_number == 1)
 
-        result = self._http_authenticated("POST", f"/0/private/TradesHistory", {})
+        result = self._http_authenticated(
+            "POST", f"/0/private/TradesHistory", {})
 
         trades = []
 
@@ -251,7 +253,8 @@ class KrakenApi(PyexAPI):
         assert(isinstance(pair, str))
         assert(isinstance(page_number, int))
 
-        result = self._http_unauthenticated("POST", f"/0/public/Trades?pair={pair}", {})
+        result = self._http_unauthenticated(
+            "POST", f"/0/public/Trades?pair={pair}", {})
 
         return list(map(lambda item: Trade.from_all_response(pair, item), result[pair]))
 
@@ -264,7 +267,8 @@ class KrakenApi(PyexAPI):
         postdata = urlencode(body)
         encoded = (str(body['nonce']) + postdata).encode()
         message = resource.encode() + hashlib.sha256(encoded).digest()
-        signature = hmac.new(base64.b64decode(self.secret_key), message, hashlib.sha512)
+        signature = hmac.new(base64.b64decode(
+            self.secret_key), message, hashlib.sha512)
         sigdigest = base64.b64encode(signature.digest())
 
         return self._result(requests.request(method=method,
@@ -293,8 +297,10 @@ class KrakenApi(PyexAPI):
             timed_nonce = int(time.time()*1000)
 
             if self.last_nonce + 1 > timed_nonce:
-                self.logger.info(f"Wanted to use nonce '{timed_nonce}', but last nonce is '{self.last_nonce}'")
-                self.logger.info(f"In this case using '{self.last_nonce + 1}' instead")
+                self.logger.info(
+                    f"Wanted to use nonce '{timed_nonce}', but last nonce is '{self.last_nonce}'")
+                self.logger.info(
+                    f"In this case using '{self.last_nonce + 1}' instead")
 
                 self.last_nonce += 1
             else:
@@ -304,12 +310,14 @@ class KrakenApi(PyexAPI):
 
     def _result(self, result) -> Optional[dict]:
         if not result.ok:
-            raise Exception(f"Kraken API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"Kraken API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"Kraken API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"Kraken API invalid JSON response: {http_response_summary(result)}")
 
         if data['error']:
             raise Exception(f"Kraken API error : {data['error']}")

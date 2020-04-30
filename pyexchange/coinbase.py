@@ -104,11 +104,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.pair == other.pair and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount
+            self.timestamp == other.timestamp and \
+            self.pair == other.pair and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -124,7 +124,8 @@ class Trade:
     @staticmethod
     def from_our_list(pair, trade):
         return Trade(trade_id=trade['trade_id'],
-                     timestamp=int(dateutil.parser.parse(trade['created_at']).timestamp()),
+                     timestamp=int(dateutil.parser.parse(
+                         trade['created_at']).timestamp()),
                      pair=pair,
                      is_sell=True if trade['side'] == 'sell' else False,
                      price=Wad.from_number(trade['price']),
@@ -133,7 +134,8 @@ class Trade:
     @staticmethod
     def from_all_list(pair, trade):
         return Trade(trade_id=trade['trade_id'],
-                     timestamp=int(dateutil.parser.parse(trade['time']).timestamp()),
+                     timestamp=int(dateutil.parser.parse(
+                         trade['time']).timestamp()),
                      pair=pair,
                      is_sell=True if trade['side'] == 'sell' else False,
                      price=Wad.from_number(trade['price']),
@@ -172,7 +174,8 @@ class CoinbaseApi(PyexAPI):
     def get_orders(self, pair: str) -> List[Order]:
         assert(isinstance(pair, str))
 
-        orders = self._http_authenticated("GET", f"/orders?product_id={pair}", {})
+        orders = self._http_authenticated(
+            "GET", f"/orders?product_id={pair}", {})
 
         return list(map(lambda item: Order.from_list(item, pair), orders))
 
@@ -229,7 +232,8 @@ class CoinbaseApi(PyexAPI):
         assert(isinstance(page_number, int))
         assert(page_number == 1)
 
-        result = self._http_authenticated("GET", f"/fills?product_id={pair}", {})
+        result = self._http_authenticated(
+            "GET", f"/fills?product_id={pair}", {})
 
         return list(map(lambda item: Trade.from_our_list(pair, item), result))
 
@@ -239,7 +243,8 @@ class CoinbaseApi(PyexAPI):
 
         limit = 100
 
-        result = self._http_unauthenticated("GET", f"/products/{pair}/trades?before={page_number}&limit={limit}", {})
+        result = self._http_unauthenticated(
+            "GET", f"/products/{pair}/trades?before={page_number}&limit={limit}", {})
 
         return list(map(lambda item: Trade.from_all_list(pair, item), result))
 
@@ -258,9 +263,11 @@ class CoinbaseApi(PyexAPI):
         assert isinstance(coin, str)
         wallet = self.get_coinbase_wallet(coin)
         if wallet is None:
-            raise ValueError(f"Wallet for {coin} not found; ensure Coinbase Pro supports this token")
+            raise ValueError(
+                f"Wallet for {coin} not found; ensure Coinbase Pro supports this token")
         wallet_id = wallet['id']
-        result = self._http_authenticated("POST", f"/coinbase-accounts/{wallet_id}/addresses", {})
+        result = self._http_authenticated(
+            "POST", f"/coinbase-accounts/{wallet_id}/addresses", {})
         return Address(result['address'])
 
     def withdraw(self, amount: Wad, coin: str, address: Address) -> str:
@@ -320,11 +327,13 @@ class CoinbaseApi(PyexAPI):
 
     def _result(self, result) -> Optional[dict]:
         if not result.ok:
-            raise Exception(f"Coinbase API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"Coinbase API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"Coinbase API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"Coinbase API invalid JSON response: {http_response_summary(result)}")
 
         return data

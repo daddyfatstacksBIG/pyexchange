@@ -35,5 +35,3 @@ print(dydx.get_orders("WETH-DAI"))
 # print(dydx.get_trades("WETH-DAI"))
 
 # print(dydx.cancel_order("0x2619bd0ddaeb4a984bab6c134c132d75d7ec640f026404116ef58ab89c00be77"))
-
-

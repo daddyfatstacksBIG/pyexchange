@@ -110,11 +110,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.pair == other.pair and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount
+            self.timestamp == other.timestamp and \
+            self.pair == other.pair and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -133,7 +133,8 @@ class Trade:
                      timestamp=trade["completedAt"],
                      pair=pair,
                      is_sell=True if trade["type"] == "sell" else False,
-                     price=Wad.from_number(trade["fillsDetail"]["price"]["value"]),
+                     price=Wad.from_number(
+                         trade["fillsDetail"]["price"]["value"]),
                      amount=Wad.from_number(trade["fillsDetail"]["amount"]["value"]))
 
     @staticmethod
@@ -151,7 +152,7 @@ class KorbitApi(PyexAPI):
 
     Developed according to the following manual:
     <https://apidocs.korbit.co.kr/>.
-    
+
     Authentication uses OAuth 2.0. Access tokens expire within one hour, 
     and requires refresh token to be called periodically
     """
@@ -184,7 +185,8 @@ class KorbitApi(PyexAPI):
     def get_orders(self, pair: str) -> List[Order]:
         assert(isinstance(pair, str))
 
-        orders = self._http_authenticated_request("GET", f"/v1/user/orders/open?currency_pair={pair}", {})
+        orders = self._http_authenticated_request(
+            "GET", f"/v1/user/orders/open?currency_pair={pair}", {})
         return list(map(lambda item: Order.from_list(item, pair), orders))
 
     def place_order(self, pair: str, is_sell: bool, price: Wad, amount: Wad) -> str:
@@ -194,7 +196,7 @@ class KorbitApi(PyexAPI):
         assert(isinstance(amount, Wad))
 
         side = "buy" if is_sell == False else "sell"
-        
+
         data = {
             "currency_pair": pair,
             "type": "limit",
@@ -205,7 +207,8 @@ class KorbitApi(PyexAPI):
 
         self.logger.info(f"Placing order ({side}, amount {data['coin_amount']} of {pair},"
                          f" price {data['price']})...")
-        result = self._http_authenticated_request("POST", f"/v1/user/orders/{side}", data)
+        result = self._http_authenticated_request(
+            "POST", f"/v1/user/orders/{side}", data)
         order_id = result['orderId']
 
         self.logger.info(f"Placed order (#{result}) as #{order_id}")
@@ -217,14 +220,15 @@ class KorbitApi(PyexAPI):
         assert(isinstance(pair, str))
 
         self.logger.info(f"Cancelling order #{order_id}...")
-        
+
         data = {
             "currency_pair": pair,
             "nonce": self._choose_nonce(),
             "id": order_id
         }
 
-        result = self._http_authenticated_request("POST", f"/v1/user/orders/cancel", data)
+        result = self._http_authenticated_request(
+            "POST", f"/v1/user/orders/cancel", data)
         if result[0]["status"] == "success":
             return True
         else:
@@ -235,7 +239,8 @@ class KorbitApi(PyexAPI):
         assert(isinstance(offset, int))
 
         # Limit and Offset are optional, but limit is hardcoded to the maximum available 40 as opposed to default of 10
-        result = self._http_authenticated_request("GET", f"/v1/user/transactions?currency_pair={self._format_pair_string(pair)}&offset={offset}&limit=40", {})
+        result = self._http_authenticated_request(
+            "GET", f"/v1/user/transactions?currency_pair={self._format_pair_string(pair)}&offset={offset}&limit=40", {})
 
         return list(map(lambda item: Trade.from_our_list(self._format_pair_string(pair), item), result))
 
@@ -243,12 +248,14 @@ class KorbitApi(PyexAPI):
         assert(isinstance(pair, str))
         assert(isinstance(page_number, int))
 
-        period = "day" # "day, "minute, "hour"
+        period = "day"  # "day, "minute, "hour"
 
-        result = self._http_unauthenticated_request("GET", f"/v1/transactions?currency_pair={self._format_pair_string(pair)}&time={period}", {})
+        result = self._http_unauthenticated_request(
+            "GET", f"/v1/transactions?currency_pair={self._format_pair_string(pair)}&time={period}", {})
 
         # Retrieve 100 most rcent trades for a given pair, sorted by timestampd
-        most_recent_trades = sorted(result, key=lambda t: t["timestamp"], reverse=True)[:100]
+        most_recent_trades = sorted(
+            result, key=lambda t: t["timestamp"], reverse=True)[:100]
         return list(map(lambda item: Trade.from_all_list(pair, item), most_recent_trades))
 
     def _get_access_token(self) -> str:
@@ -266,7 +273,7 @@ class KorbitApi(PyexAPI):
                 "client_secret": self.secret_key,
                 "grant_type": "client_credentials"
             }
-            
+
             response = self._result(requests.request(
                 method="POST",
                 url="https://api.korbit.co.kr/v1/oauth2/access_token",
@@ -317,7 +324,6 @@ class KorbitApi(PyexAPI):
         current_time = int(round(time.time()))
         self.token["expires_at"] = current_time + response["expires_in"]
 
-
     def _http_authenticated_request(self, method: str, resource: str, body: dict):
         assert(isinstance(method, str))
         assert(isinstance(resource, str))
@@ -354,12 +360,14 @@ class KorbitApi(PyexAPI):
 
     def _result(self, result) -> Optional[dict]:
         if not result.ok:
-            raise Exception(f"Korbit API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"Korbit API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"Korbit API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"Korbit API invalid JSON response: {http_response_summary(result)}")
 
         return data
 
@@ -377,10 +385,11 @@ class KorbitApi(PyexAPI):
             time.sleep(0.1)
 
             if self.last_nonce + 1 > timed_nonce:
-                self.logger.info(f"Wanted to use nonce '{timed_nonce}', but last nonce is '{self.last_nonce}', using '{self.last_nonce + 1}' instead")
+                self.logger.info(
+                    f"Wanted to use nonce '{timed_nonce}', but last nonce is '{self.last_nonce}', using '{self.last_nonce + 1}' instead")
 
                 self.last_nonce += 1
             else:
                 self.last_nonce = timed_nonce
 
-            return self.last_nonce            
+            return self.last_nonce

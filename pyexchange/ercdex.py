@@ -37,11 +37,12 @@ class ErcdexApi(ZrxApiV2):
         cancel_msg = self.zrx_exchange.web3.sha3(text=f'cancel:{order_hash}')
         v, r, s = to_vrs(eth_sign(cancel_msg, self.zrx_exchange.web3))
         signature = bytes_to_hexstring(bytes([v])) + \
-                    bytes_to_hexstring(r)[2:] + \
-                    bytes_to_hexstring(s)[2:] + \
-                    "03"  # EthSign
+            bytes_to_hexstring(r)[2:] + \
+            bytes_to_hexstring(s)[2:] + \
+            "03"  # EthSign
 
-        cancel = {"cancellations": [{"orderHash": order_hash, "signature": signature}]}
+        cancel = {"cancellations": [
+            {"orderHash": order_hash, "signature": signature}]}
 
         response = requests.post(f"{self.zrx_api.api_server}/v2/orders/cancel",
                                  json=cancel,
@@ -52,7 +53,8 @@ class ErcdexApi(ZrxApiV2):
                 self.logger.info(f"Cancelled order #{order_hash}")
                 return True
             else:
-                self.logger.error(f"Failed to cancel: {http_response_summary(response)}")
+                self.logger.error(
+                    f"Failed to cancel: {http_response_summary(response)}")
                 return False
         else:
             self.logger.info(f"Failed to cancel order #{order_hash}")

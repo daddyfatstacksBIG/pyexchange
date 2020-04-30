@@ -33,6 +33,3 @@ print(kraken.get_orders('ETHDAI'))
 # print(kraken.get_orders('XETHZEUR'))
 # # print(kraken.get_balances())
 # print(kraken.get_trade_balances())
-
-
-

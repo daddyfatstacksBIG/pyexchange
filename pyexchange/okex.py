@@ -70,7 +70,7 @@ class Order:
         assert(isinstance(other, Order))
 
         return self.order_id == other.order_id and \
-               self.pair == other.pair
+            self.pair == other.pair
 
     def __hash__(self):
         return hash((self.order_id, self.pair))
@@ -104,11 +104,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.is_sell == other.is_sell and \
-               self.price == other.price and \
-               self.amount == other.amount and \
-               self.amount_symbol == other.amount_symbol
+            self.timestamp == other.timestamp and \
+            self.is_sell == other.is_sell and \
+            self.price == other.price and \
+            self.amount == other.amount and \
+            self.amount_symbol == other.amount_symbol
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -194,7 +194,8 @@ class OKEXApi:
 
     # Account: Get available and frozen balances for each token
     def get_balances(self) -> dict:
-        result = self._http_get("/api/spot/v3/accounts", "", requires_auth=True)
+        result = self._http_get("/api/spot/v3/accounts",
+                                "", requires_auth=True)
 
         balances = {}
         for balance in result:
@@ -212,7 +213,7 @@ class OKEXApi:
 
         return list(map(self._parse_order, result))
 
-    # Trading: Retrieves 100 most recent orders for a particular pair, newest first, 
+    # Trading: Retrieves 100 most recent orders for a particular pair, newest first,
     # which have not been completely filled.
     def get_orders_history(self, pair: str, number_of_orders: int) -> List[Order]:
         assert(isinstance(pair, str))
@@ -290,10 +291,13 @@ class OKEXApi:
                                        requires_auth=True, has_cursor=False)
 
         trades = list(map(lambda item: Trade(trade_id=item['order_id'],
-                                             timestamp=int(dateutil.parser.isoparse(item['timestamp']).timestamp()),
+                                             timestamp=int(dateutil.parser.isoparse(
+                                                 item['timestamp']).timestamp()),
                                              is_sell=item['side'] == 'sell',
-                                             price=Wad.from_number(item['price']),
-                                             amount=Wad.from_number(item['filled_size']),
+                                             price=Wad.from_number(
+                                                 item['price']),
+                                             amount=Wad.from_number(
+                                                 item['filled_size']),
                                              amount_symbol=item['instrument_id'].split('-')[0].lower()),
                           result_part_filled + result_filled))
 
@@ -312,17 +316,21 @@ class OKEXApi:
         result = self._http_get(f"/api/spot/v3/instruments/{pair}/trades",
                                 f"symbol={pair}", requires_auth=False, has_cursor=False)
         return list(map(lambda item: Trade(trade_id=item['trade_id'],
-                                           timestamp=int(dateutil.parser.isoparse(item['timestamp']).timestamp()),
+                                           timestamp=int(dateutil.parser.isoparse(
+                                               item['timestamp']).timestamp()),
                                            is_sell=item['side'] == 'sell',
-                                           price=Wad.from_number(item['price']),
-                                           amount=Wad.from_number(item['size']),
+                                           price=Wad.from_number(
+                                               item['price']),
+                                           amount=Wad.from_number(
+                                               item['size']),
                                            amount_symbol=pair.split('_')[0].lower()), result))
 
     @staticmethod
     def _parse_order(item: dict) -> Order:
         assert(isinstance(item, dict))
         return Order(order_id=item['order_id'],
-                     timestamp=int(dateutil.parser.isoparse(item['timestamp']).timestamp()),
+                     timestamp=int(dateutil.parser.isoparse(
+                         item['timestamp']).timestamp()),
                      pair=item['instrument_id'],
                      is_sell=item['side'] == 'sell',
                      price=Wad.from_number(item['price']),
@@ -335,12 +343,14 @@ class OKEXApi:
         assert(isinstance(check_result, bool))
 
         if not response.ok:
-            raise Exception(f"OKCoin API invalid HTTP response: {http_response_summary(response)}")
+            raise Exception(
+                f"OKCoin API invalid HTTP response: {http_response_summary(response)}")
 
         try:
             data = response.json()
         except Exception:
-            raise Exception(f"OKCoin API invalid JSON response: {http_response_summary(response)}")
+            raise Exception(
+                f"OKCoin API invalid JSON response: {http_response_summary(response)}")
 
         # This code may be uncommented to prepare JSON samples for unit tests.
         # file = open(f"okex-response-dump-{datetime.datetime.now().strftime('%Y%m%d_%H%M%S%f')}.json", "w")
@@ -349,7 +359,8 @@ class OKEXApi:
 
         if check_result:
             if 'error_code' in data and data["error_code"] != 0 and data["error_code"] != "":
-                raise Exception(f"OKCoin API negative response: {http_response_summary(response)}")
+                raise Exception(
+                    f"OKCoin API negative response: {http_response_summary(response)}")
 
         if has_cursor:
             # FIXME: These don't return useful values
@@ -358,7 +369,7 @@ class OKEXApi:
                 'after': response.headers.get('OK-AFTER', 0),
                 'from': response.headers.get('OK-FROM', 0),
                 'to': response.headers.get('OK-TO', 0)}
-            return data #, cursor_info
+            return data  # , cursor_info
         else:
             return data
 
@@ -407,7 +418,8 @@ class OKEXApi:
 
         return self._result(
             requests.get(url=f"{self.api_server}{request}",
-                         headers=self._create_http_headers("GET", request, "") if requires_auth else None,
+                         headers=self._create_http_headers(
+                             "GET", request, "") if requires_auth else None,
                          timeout=self.timeout), check_result, has_cursor)
 
     def _http_post(self, resource: str, params: dict, has_cursor=False):
@@ -418,5 +430,6 @@ class OKEXApi:
         return self._result(
             requests.post(url=f"{self.api_server}{resource}",
                           data=json.dumps(params),
-                          headers=self._create_http_headers("POST", resource, json.dumps(params)),
+                          headers=self._create_http_headers(
+                              "POST", resource, json.dumps(params)),
                           timeout=self.timeout), True, has_cursor)

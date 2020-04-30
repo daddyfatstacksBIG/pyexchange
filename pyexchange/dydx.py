@@ -41,7 +41,8 @@ class DydxOrder(Order):
         price = Wad.from_number(float(item['price']) * 10**decimal_exponent)
 
         return Order(order_id=item['id'],
-                     timestamp=int(dateutil.parser.parse(item['createdAt']).timestamp()),
+                     timestamp=int(dateutil.parser.parse(
+                         item['createdAt']).timestamp()),
                      pair=pair,
                      is_sell=True if item['side'] == 'SELL' else False,
                      price=price,
@@ -56,7 +57,8 @@ class DydxTrade(Trade):
         price = Wad.from_number(float(trade['price']) * 10**decimal_exponent)
 
         return Trade(trade_id=trade['uuid'],
-                     timestamp=int(dateutil.parser.parse(trade['createdAt']).timestamp()),
+                     timestamp=int(dateutil.parser.parse(
+                         trade['createdAt']).timestamp()),
                      pair=trade["market"],
                      is_sell=True if trade['side'] == 'SELL' else False,
                      price=price,
@@ -92,10 +94,10 @@ class DydxApi(PyexAPI):
     def _convert_balance_to_wad(self, balance: dict, decimals: int) -> dict:
         wei_balance = float(balance['wei'])
 
-        ## DyDx can have negative balances from native margin trading
+        # DyDx can have negative balances from native margin trading
         is_negative = False
         if wei_balance < 0:
-           is_negative = True
+            is_negative = True
 
         converted_balance = from_wei(abs(int(wei_balance)), 'ether')
 
@@ -110,7 +112,7 @@ class DydxApi(PyexAPI):
 
         return balance
 
-    # format balances response into a shape expected by keepers 
+    # format balances response into a shape expected by keepers
     def _balances_to_list(self, balances) -> List:
         balance_list = []
 
@@ -126,7 +128,8 @@ class DydxApi(PyexAPI):
             elif int(market_id) == consts.MARKET_DAI:
                 balance['currency'] = 'DAI'
 
-            balance_list.append(self._convert_balance_to_wad(balance, decimals))
+            balance_list.append(
+                self._convert_balance_to_wad(balance, decimals))
 
         return balance_list
 
@@ -136,9 +139,11 @@ class DydxApi(PyexAPI):
     def get_orders(self, pair: str) -> List[Order]:
         assert (isinstance(pair, str))
 
-        orders = self.client.get_my_orders(market=[pair], limit=None, startingBefore=None)
-        open_orders = filter(lambda order: order['status'] == 'OPEN', orders['orders'])
-        
+        orders = self.client.get_my_orders(
+            market=[pair], limit=None, startingBefore=None)
+        open_orders = filter(
+            lambda order: order['status'] == 'OPEN', orders['orders'])
+
         market_info = self.market_info[pair]
 
         return list(map(lambda item: DydxOrder.from_message(item, pair, market_info), open_orders))
@@ -171,11 +176,13 @@ class DydxApi(PyexAPI):
         self.logger.info(f"Placing order ({side}, amount {amount} of {pair},"
                          f" price {price})...")
 
-        tick_size = abs(Decimal(self.market_info[pair]['minimumTickSize']).as_tuple().exponent)
+        tick_size = abs(
+            Decimal(self.market_info[pair]['minimumTickSize']).as_tuple().exponent)
         # As market_id is used for amount, use baseCurrency instead of quoteCurrency
         market_id = self.market_info[pair]['baseCurrency']['soloMarketId']
         # Convert tokens with different decimals to standard wei units
-        decimal_exponent = (18 - int(self.market_info[pair]['quoteCurrency']['decimals'])) * -1
+        decimal_exponent = (
+            18 - int(self.market_info[pair]['quoteCurrency']['decimals'])) * -1
 
         price = round(Decimal(price * (10**decimal_exponent)), tick_size)
 
@@ -205,7 +212,7 @@ class DydxApi(PyexAPI):
         assert (isinstance(page_number, int))
 
         result = self.client.get_my_fills(market=[pair])
-        
+
         market_info = self.market_info[pair]
 
         return list(map(lambda item: DydxTrade.from_message(item, pair, market_info), list(result['fills'])))
@@ -213,8 +220,8 @@ class DydxApi(PyexAPI):
     def get_all_trades(self, pair: str, page_number: int = 1) -> List[Trade]:
         assert (isinstance(pair, str))
         assert (page_number == 1)
-        
-        ## Specify which side of the order book to retrieve with pair
+
+        # Specify which side of the order book to retrieve with pair
         # E.g WETH-DAI will not retrieve DAI-WETH
         result = self.client.get_fills(market=[pair], limit=100)['fills']
         trades = filter(lambda item: item['status'] == 'CONFIRMED', result)

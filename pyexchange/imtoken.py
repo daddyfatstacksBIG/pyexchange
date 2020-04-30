@@ -51,11 +51,11 @@ class Trade:
     def __eq__(self, other):
         assert(isinstance(other, Trade))
         return self.trade_id == other.trade_id and \
-               self.timestamp == other.timestamp and \
-               self.maker_token == other.maker_token and \
-               self.taker_token == other.taker_token and \
-               self.maker_token_amount == other.maker_token_amount and \
-               self.taker_token_amount == other.taker_token_amount
+            self.timestamp == other.timestamp and \
+            self.maker_token == other.maker_token and \
+            self.taker_token == other.taker_token and \
+            self.maker_token_amount == other.maker_token_amount and \
+            self.taker_token_amount == other.taker_token_amount
 
     def __hash__(self):
         return hash((self.trade_id,
@@ -74,7 +74,8 @@ class Trade:
                      timestamp=trade['timestamp'],
                      maker_token=trade['makerToken'],
                      taker_token=trade['takerToken'],
-                     maker_token_amount=Wad.from_number(trade['makerTokenAmount']),
+                     maker_token_amount=Wad.from_number(
+                         trade['makerTokenAmount']),
                      taker_token_amount=Wad.from_number(trade['takerTokenAmount']))
 
 
@@ -97,12 +98,12 @@ class ImtokenApi(PyexAPI):
         assert(isinstance(pair, str))
         assert(isinstance(page_number, int))
 
-        result = self._http_unauthenticated("GET", f"/getOrdersHistory?page={page_number}&perpage=100", {})['orders']
+        result = self._http_unauthenticated(
+            "GET", f"/getOrdersHistory?page={page_number}&perpage=100", {})['orders']
         result = list(filter(lambda item: item['status'] == 'success' and
-                                          (f"{item['makerToken']}/{item['takerToken']}" == pair
-                                           or
-                                           f"{item['takerToken']}/{item['makerToken']}" == pair)
-                             , result))
+                             (f"{item['makerToken']}/{item['takerToken']}" == pair
+                              or
+                              f"{item['takerToken']}/{item['makerToken']}" == pair), result))
 
         return list(map(lambda item: Trade.from_list(item), result))
 
@@ -120,12 +121,14 @@ class ImtokenApi(PyexAPI):
 
     def _result(self, result) -> Optional[dict]:
         if not result.ok:
-            raise Exception(f"Imtoken API invalid HTTP response: {http_response_summary(result)}")
+            raise Exception(
+                f"Imtoken API invalid HTTP response: {http_response_summary(result)}")
 
         try:
             data = result.json()
         except Exception:
-            raise Exception(f"Imtoken API invalid JSON response: {http_response_summary(result)}")
+            raise Exception(
+                f"Imtoken API invalid JSON response: {http_response_summary(result)}")
 
         return data
 

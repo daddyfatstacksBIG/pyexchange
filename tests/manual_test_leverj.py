@@ -18,7 +18,7 @@
 import sys
 import base64
 import web3
-from web3 import Web3 
+from web3 import Web3
 from pyexchange.leverj import LeverjAPI, LeverJ
 from pymaker import Wad, Address
 from pymaker.keys import register_private_key
@@ -55,7 +55,6 @@ leverj = LeverjAPI(w3, sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], 9.5)
 leverj_custodian = LeverJ(w3, Address(sys.argv[8]))
 
 
-
 print("get balances")
 print(leverj.get_balances())
 
@@ -70,7 +69,7 @@ print("getting LEVETH instrument from get_product")
 print(leverj.get_product("LEVETH"))
 print(leverj.get_product("FEEETH"))
 print(leverj.get_product("ETHDAI"))
-#print(leverj.get_product("USDCDAI"))
+# print(leverj.get_product("USDCDAI"))
 print(leverj.get_product("LEVDAI"))
 
 
@@ -83,27 +82,27 @@ instruments = result['instruments']
 print(result)
 #
 #print("get custodian address for either mainnet or ropsten")
-#print(leverj.get_custodian_address())
+# print(leverj.get_custodian_address())
 #
 #print("printing LEVETH_instrument")
-#print(LEVETH_instrument)
+# print(LEVETH_instrument)
 #print("printing LEVETH_instrument keys")
-#print(LEVETH_instrument.keys())
+# print(LEVETH_instrument.keys())
 #print("creating new order in testing")
 #newOrder = leverj.createNewOrder('buy', 0.001229, 20, LEVETH_instrument)
 #tradeNewOrder = leverj.createNewOrder('buy', 0.0017145, 5, LEVETH_instrument)
 #
-#print(newOrder)
+# print(newOrder)
 #
 #print('sending order to test leverj')
 #leverj.place_order("LEVETH", False, Wad.from_number(0.001229), Wad.from_number(20))
 #
 #print('sending aggressive order to trade')
-#leverj.place_order(tradeNewOrder)
+# leverj.place_order(tradeNewOrder)
 
-#try:
+# try:
 #    leverj.post_order(newOrder)
-#except:
+# except:
 #    print("there was an issue sending orders")
 #    print("error", sys.exc_info()[0], "occurred.")
 
@@ -111,28 +110,26 @@ print("orders on the platform test")
 print(leverj.get_all_orders())
 #
 #print("orders from LEVETH")
-#print(leverj.get_orders("LEVETH"))
+# print(leverj.get_orders("LEVETH"))
 #
-#print("executions")
-#print(leverj.get_trades("LEVETH",3))
-#print(len(leverj.get_trades("LEVETH",3)))
+# print("executions")
+# print(leverj.get_trades("LEVETH",3))
+# print(len(leverj.get_trades("LEVETH",3)))
 #print("7 executions")
-#print(leverj.get_trades("LEVETH"))
+# print(leverj.get_trades("LEVETH"))
 
 #print("trades for LEVETH")
-#print(leverj.get_all_trades("LEVETH"))
+# print(leverj.get_all_trades("LEVETH"))
 
 
-#time.sleep(15)
+# time.sleep(15)
 #
 #orders = leverj.get_all_orders()
 #
-##for order in orders:
+# for order in orders:
 ##    order_id = order['uuid']
-##    print(leverj.cancel_order(order_id))
+# print(leverj.cancel_order(order_id))
 #
 #print("cancelling all orders using cancel_all_orders function")
-#print(leverj.cancel_all_orders())
+# print(leverj.cancel_all_orders())
 #
-
-

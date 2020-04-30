@@ -83,7 +83,8 @@ class Uniswap(Contract):
         max_token = amount * self.get_exchange_rate() * Wad.from_number(1.00000001)
 
         return Transact(self, self.web3, self.abi, self.exchange, self._contract,
-                        'addLiquidity', [min_liquidity.value, max_token.value, self._deadline()],
+                        'addLiquidity', [min_liquidity.value,
+                                         max_token.value, self._deadline()],
                         {'value': amount.value})
 
     def remove_liquidity(self, amount: Wad) -> Transact:
@@ -126,4 +127,3 @@ class Uniswap(Contract):
 
     def __repr__(self):
         return f"UniswapExchange('{self.exchange}')"
-
