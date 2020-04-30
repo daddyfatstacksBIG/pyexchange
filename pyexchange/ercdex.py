@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import requests
-
 from pyexchange.zrxv2 import Order, ZrxApiV2
 from pymaker.sign import eth_sign, to_vrs
 from pymaker.util import bytes_to_hexstring, http_response_summary

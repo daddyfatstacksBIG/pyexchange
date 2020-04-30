@@ -17,14 +17,13 @@
 
 import logging
 from pprint import pformat
-from pyexchange.api import PyexAPI
-from pyexchange.okex import OKEXApi
+from typing import List, Optional
 
 import dateutil.parser
-
+from pyexchange.api import PyexAPI
+from pyexchange.okex import OKEXApi
 from pymaker import Address, Wad
 from pymaker.util import http_response_summary
-from typing import Optional, List
 
 
 class OkcoinApi(OKEXApi):

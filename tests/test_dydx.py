@@ -19,8 +19,8 @@ import json
 import os
 import time
 
-from pymaker import Wad
 from pyexchange.dydx import DydxApi, Order, Trade
+from pymaker import Wad
 
 # Even though DyDx is a Decentralized Exchange,
 # supporting infrastructure required for the orderbook is only available on mainnet.

@@ -16,10 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
-from web3 import Web3
 
-from pymaker import Contract, Address, Transact, Wad
+from pymaker import Address, Contract, Transact, Wad
 from pymaker.token import ERC20Token
+from web3 import Web3
 
 
 class Uniswap(Contract):

@@ -16,18 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import dateutil.parser
-
 from decimal import Decimal
 from pprint import pformat
 from typing import List, Optional
 
-from eth_utils import from_wei
-
-from dydx.client import Client
+import dateutil.parser
 import dydx.constants as consts
 import dydx.util as utils
-
+from dydx.client import Client
+from eth_utils import from_wei
 from pyexchange.api import PyexAPI
 from pyexchange.model import Order, Trade
 from pymaker import Wad

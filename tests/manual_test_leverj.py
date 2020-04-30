@@ -15,16 +15,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import base64
-import web3
-from web3 import Web3
-from pyexchange.leverj import LeverjAPI, LeverJ
-from pymaker import Wad, Address
-from pymaker.keys import register_private_key
+import json
+import sys
 import time
 import urllib.request
-import json
+
+import web3
+from pyexchange.leverj import LeverJ, LeverjAPI
+from pymaker import Address, Wad
+from pymaker.keys import register_private_key
+from web3 import Web3
 
 """ 
 for lines 31 to 44 you need have the following information

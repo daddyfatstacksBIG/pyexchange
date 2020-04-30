@@ -18,17 +18,16 @@
 import json
 
 import pkg_resources
-from web3 import EthereumTesterProvider, Web3
 
-from eth_tester import EthereumTester, PyEVMBackend
 import eth_tester.backends.pyevm.main as py_evm_main
-
+from eth_tester import EthereumTester, PyEVMBackend
 from pyexchange.zrx import Pair, ZrxApi
 from pymaker import Address
 from pymaker.deployment import deploy_contract
 from pymaker.numeric import Wad
 from pymaker.token import DSToken, ERC20Token
 from pymaker.zrx import ZrxExchange
+from web3 import EthereumTesterProvider, Web3
 
 
 class TestZrxApi:

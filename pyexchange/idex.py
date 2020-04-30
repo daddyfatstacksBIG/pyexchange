@@ -20,13 +20,13 @@ from pprint import pformat
 from typing import List
 
 import requests
-from web3 import Web3
-
-from pymaker import Contract, Address, Transact, Wad
+from pymaker import Address, Contract, Transact, Wad
 from pymaker.sign import eth_sign, to_vrs
-from pymaker.tightly_packed import encode_address, encode_uint256, encode_bytes
+from pymaker.tightly_packed import encode_address, encode_bytes, encode_uint256
 from pymaker.token import ERC20Token
-from pymaker.util import bytes_to_hexstring, hexstring_to_bytes, http_response_summary
+from pymaker.util import (bytes_to_hexstring, hexstring_to_bytes,
+                          http_response_summary)
+from web3 import Web3
 
 
 class Order:

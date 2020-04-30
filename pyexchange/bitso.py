@@ -15,23 +15,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import hashlib
+import hmac
+import json
 import logging
+import time
+import uuid
 from pprint import pformat
-from typing import Optional, List
+from typing import List, Optional
+from urllib.parse import urlencode
 
 import dateutil.parser
 import requests
-import time
-
-import uuid
-import hmac
-import hashlib
-import json
-
-from urllib.parse import urlencode
-
 from pyexchange.api import PyexAPI
-
 from pymaker.numeric import Wad
 from pymaker.util import http_response_summary
 

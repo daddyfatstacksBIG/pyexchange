@@ -20,11 +20,10 @@ import os
 import re
 import time
 
-from pymaker import Wad
 from pyexchange.model import Candle
-from pyexchange.okex import Order
-from pyexchange.okex import Trade
 from pyexchange.okcoin import OkcoinApi
+from pyexchange.okex import Order, Trade
+from pymaker import Wad
 
 # Models HTTP response, produced by OkcoinMockServer
 

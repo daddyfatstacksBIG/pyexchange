@@ -19,12 +19,10 @@ import logging
 import sys
 import time
 
-from web3 import Web3, HTTPProvider
 import web3.utils
-
 from pyexchange.ddex import DdexApi
-from pymaker import Wad, Address
-
+from pymaker import Address, Wad
+from web3 import HTTPProvider, Web3
 
 logging.basicConfig(
     format="%(asctime)-15s %(levelname)-8s %(message)s", level=logging.INFO

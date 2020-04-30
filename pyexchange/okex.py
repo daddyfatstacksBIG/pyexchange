@@ -25,7 +25,6 @@ from typing import List
 
 import dateutil.parser
 import requests
-
 from pyexchange.model import Candle
 from pymaker.numeric import Wad
 from pymaker.util import http_response_summary

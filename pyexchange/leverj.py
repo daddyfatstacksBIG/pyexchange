@@ -15,21 +15,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-from pyexchange.api import PyexAPI
-import dateutil.parser
-import time
-import requests
 import json
-from leverj_ordersigner import sign_order
-from pprint import pformat
-from pymaker import Contract, Address, Transact, Wad
-from pymaker.util import http_response_summary, bytes_to_hexstring
-from typing import Optional
-from pymaker.sign import eth_sign, to_vrs
-from web3 import Web3
-from typing import Optional, List
+import logging
+import time
 import urllib.request
+from pprint import pformat
+from typing import List, Optional
+
+import dateutil.parser
+import requests
+from leverj_ordersigner import sign_order
+from pyexchange.api import PyexAPI
+from pymaker import Address, Contract, Transact, Wad
+from pymaker.sign import eth_sign, to_vrs
+from pymaker.util import bytes_to_hexstring, http_response_summary
+from web3 import Web3
 
 
 class Order:

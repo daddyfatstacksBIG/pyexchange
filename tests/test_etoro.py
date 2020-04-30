@@ -21,8 +21,8 @@ import re
 import time
 from datetime import datetime, timezone
 
-from pymaker import Wad
 from pyexchange.etoro import EToroApi, Order, Trade
+from pymaker import Wad
 
 # Models HTTP response, produced by EToroMockServer
 

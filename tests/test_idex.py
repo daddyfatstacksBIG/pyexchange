@@ -16,13 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
-from web3 import EthereumTesterProvider, Web3
-
 from pyexchange.idex import IDEX
 from pymaker import Address
 from pymaker.approval import directly
 from pymaker.numeric import Wad
 from pymaker.token import DSToken
+from web3 import EthereumTesterProvider, Web3
 
 
 class TestIDEX:

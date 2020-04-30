@@ -19,9 +19,8 @@ import datetime
 import sys
 from pprint import pprint
 
-from pymaker import Wad
 from pyexchange.okex import OKEXApi
-
+from pymaker import Wad
 
 okex = OKEXApi(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], 15.5)
 print(sys.argv)

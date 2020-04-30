@@ -15,29 +15,24 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import base64
+import io
 import logging
+import time
+import uuid
+from datetime import datetime, timezone
 from pprint import pformat
-from typing import Optional, List
+from typing import List, Optional
+from urllib.parse import urlencode
 
 import dateutil.parser
 import requests
-import time
-from datetime import datetime, timezone
-
-import io
-import uuid
-import base64
-
-from urllib.parse import urlencode
-
-from pyexchange.api import PyexAPI
-
-from pymaker.numeric import Wad
-from pymaker.util import http_response_summary
-
-from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
+from Crypto.Signature import pkcs1_15
+from pyexchange.api import PyexAPI
+from pymaker.numeric import Wad
+from pymaker.util import http_response_summary
 
 
 class Order:

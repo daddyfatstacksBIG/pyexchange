@@ -19,16 +19,14 @@ import logging
 import random
 import time
 from pprint import pformat
-from typing import Optional, List
+from typing import List, Optional
 
 import requests
+from pymaker import Address, Contract
+from pymaker.numeric import Wad
+from pymaker.util import bytes_to_int, http_response_summary
 from web3 import Web3
 from web3._utils.events import get_event_data
-
-from pymaker import Contract, Address
-from pymaker.numeric import Wad
-from pymaker.util import bytes_to_int
-from pymaker.util import http_response_summary
 
 
 class Filled:
