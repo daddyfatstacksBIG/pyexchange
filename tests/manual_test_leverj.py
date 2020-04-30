@@ -29,11 +29,11 @@ from web3 import Web3
 from pyexchange.leverj import LeverJ
 from pyexchange.leverj import LeverjAPI
 
-""" 
+"""
 for lines 31 to 44 you need have the following information
 got get a node with a port, then get an ethereum account with private key, you also need LEV, DAI, REP ethereum addresses
 and finally you need to go to leverj website and create a login, they will then give you a json file that contains AccountID
-apiKey, and secret, and you need to get custodian_address from leverj you also need to  which you need to fill in below 
+apiKey, and secret, and you need to get custodian_address from leverj you also need to  which you need to fill in below
 
 
 #w3 = Web3(Web3.HTTPProvider("NodeAddressWithPort", request_kwargs={'timeout': 60}))

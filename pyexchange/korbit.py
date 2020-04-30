@@ -167,7 +167,7 @@ class KorbitApi(PyexAPI):
     Developed according to the following manual:
     <https://apidocs.korbit.co.kr/>.
 
-    Authentication uses OAuth 2.0. Access tokens expire within one hour, 
+    Authentication uses OAuth 2.0. Access tokens expire within one hour,
     and requires refresh token to be called periodically
     """
 
