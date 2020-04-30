@@ -29,8 +29,8 @@ from pyexchange.etoro import EToroApi, Order, Trade
 
 class MockedResponse:
     def __init__(self, text: str, status_code=200):
-        assert (isinstance(text, str))
-        assert (isinstance(status_code, int))
+        assert isinstance(text, str)
+        assert isinstance(status_code, int)
         self.status_code = status_code
         self.ok = 200 <= status_code < 400
         self.text = text
@@ -38,6 +38,7 @@ class MockedResponse:
 
     def json(self, **kwargs):
         return json.loads(self.text)
+
 
 # Determines response to provide based on the requested URL
 
@@ -47,15 +48,15 @@ class EToroMockServer:
     responses = {}
     cwd = os.path.dirname(os.path.realpath(__file__))
     response_file_path = os.path.join(cwd, "mock/etoro-api-responses")
-    with open(response_file_path, 'r') as file:
+    with open(response_file_path, "r") as file:
         for line in file:
             kvp = line.split("|")
-            assert(len(kvp) == 2)
+            assert len(kvp) == 2
             responses[kvp[0]] = kvp[1]
 
     @staticmethod
     def handle_request(**kwargs):
-        assert("url" in kwargs)
+        assert "url" in kwargs
         url = kwargs["url"]
         method = kwargs["method"]
         if method == "GET":
@@ -77,19 +78,19 @@ class EToroMockServer:
         elif re.search(r"\/api\/v1\/trades", url):
             return MockedResponse(text=EToroMockServer.responses["trades"])
         else:
-            raise ValueError(
-                "Unable to match HTTP GET request to canned response", url)
+            raise ValueError("Unable to match HTTP GET request to canned response", url)
 
     @staticmethod
     def handle_post(url: str, data):
-        assert(data is not None)
+        assert data is not None
         if re.search(r"\/api\/v1\/orders", url):
             return MockedResponse(text=EToroMockServer.responses["single_order"])
         # elif re.search(r"\/api\/v1\/orders", url):
         #     return MockedResponse(text=EToroMockServer.responses["place_order_failure"])
         else:
             raise ValueError(
-                "Unable to match HTTP POST request to canned response", url, data)
+                "Unable to match HTTP POST request to canned response", url, data
+            )
 
     @staticmethod
     def handle_delete(url: str):
@@ -97,7 +98,8 @@ class EToroMockServer:
             return MockedResponse(text=EToroMockServer.responses["cancel_order"])
         else:
             raise ValueError(
-                "Unable to match HTTP DELETE request to canned response", url)
+                "Unable to match HTTP DELETE request to canned response", url
+            )
 
 
 class TestEToro:
@@ -108,15 +110,14 @@ class TestEToro:
             account="test-account",
             api_key="00000000-0000-0000-0000-000000000000",
             secret_key=open(os.path.join(cwd, "mock/etoro-test-key"), "r"),
-            timeout=15.5
+            timeout=15.5,
         )
 
     def test_get_markets(self, mocker):
-        mocker.patch("requests.request",
-                     side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_markets()
-        assert(len(response) > 0)
-        assert(any(x["id"] == "ethusdc" for x in response))
+        assert len(response) > 0
+        assert any(x["id"] == "ethusdc" for x in response)
 
     def test_order(self):
         price = Wad.from_number(4.8765)
@@ -127,19 +128,18 @@ class TestEToro:
             pair="ethusdc",
             is_sell=False,
             price=price,
-            amount=amount
+            amount=amount,
         )
-        assert(order.price == order.sell_to_buy_price)
-        assert(order.price == order.buy_to_sell_price)
+        assert order.price == order.sell_to_buy_price
+        assert order.price == order.buy_to_sell_price
 
     def test_get_balances(self, mocker):
-        mocker.patch("requests.request",
-                     side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_balances()
-        assert(len(response) > 0)
+        assert len(response) > 0
         for balance in response:
             if balance["currency"] == "eth":
-                assert(float(balance["balance"]) > 0)
+                assert float(balance["balance"]) > 0
 
     @staticmethod
     def check_orders(orders):
@@ -148,9 +148,9 @@ class TestEToro:
         duplicate_first_found = -1
         current_time = datetime.now(tz=timezone.utc).isoformat()
         for index, order in enumerate(orders):
-            assert(isinstance(order, Order))
-            assert(order.order_id is not None)
-            assert(order.timestamp < current_time)
+            assert isinstance(order, Order)
+            assert order.order_id is not None
+            assert order.timestamp < current_time
 
             # Check for duplicates
             if order.order_id in by_oid:
@@ -161,34 +161,35 @@ class TestEToro:
                 by_oid[order.order_id] = order
 
         if duplicate_count > 0:
-            print(f"{duplicate_count} duplicate orders were found, "
-                  f"starting at index {duplicate_first_found}")
+            print(
+                f"{duplicate_count} duplicate orders were found, "
+                f"starting at index {duplicate_first_found}"
+            )
         else:
             print("no duplicates were found")
-        assert(duplicate_count == 0)
+        assert duplicate_count == 0
 
     def test_get_orders(self, mocker):
         pair = "ethusdc"
-        mocker.patch("requests.request",
-                     side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_orders(pair, "open")
-        assert (len(response) > 0)
+        assert len(response) > 0
         for order in response:
-            assert(isinstance(order.is_sell, bool))
-            assert(Wad(order.price) > Wad(0))
+            assert isinstance(order.is_sell, bool)
+            assert Wad(order.price) > Wad(0)
         TestEToro.check_orders(response)
 
     def test_order_placement_and_cancellation(self, mocker):
         pair = "ethusdc"
         side = "ask"
-        mocker.patch("requests.request",
-                     side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
         order_id = self.etoro.place_order(
-            pair, side, Wad.from_number(639.3), Wad.from_number(0.15))
-        assert(isinstance(order_id, str))
-        assert(order_id is not None)
+            pair, side, Wad.from_number(639.3), Wad.from_number(0.15)
+        )
+        assert isinstance(order_id, str)
+        assert order_id is not None
         cancel_result = self.etoro.cancel_order(order_id)
-        assert(cancel_result["state"] == "pending cancellation")
+        assert cancel_result["state"] == "pending cancellation"
 
     @staticmethod
     def check_trades(trades):
@@ -198,7 +199,7 @@ class TestEToro:
         missorted_found = False
         last_timestamp = 0
         for index, trade in enumerate(trades):
-            assert(isinstance(trade, Trade))
+            assert isinstance(trade, Trade)
             if trade.trade_id in by_tradeid:
                 print(f"found duplicate trade {trade.trade_id}")
                 duplicate_count += 1
@@ -212,17 +213,18 @@ class TestEToro:
                         missorted_found = True
                     last_timestamp = trade.timestamp
         if duplicate_count > 0:
-            print(f"{duplicate_count} duplicate trades were found, "
-                  f"starting at index {duplicate_first_found}")
+            print(
+                f"{duplicate_count} duplicate trades were found, "
+                f"starting at index {duplicate_first_found}"
+            )
         else:
             print("no duplicates were found")
-        assert(duplicate_count == 0)
-        assert(missorted_found is False)
+        assert duplicate_count == 0
+        assert missorted_found is False
 
     def test_get_trades(self, mocker):
         pair = "ethusdc"
-        mocker.patch("requests.request",
-                     side_effect=EToroMockServer.handle_request)
+        mocker.patch("requests.request", side_effect=EToroMockServer.handle_request)
         response = self.etoro.get_trades(pair)
-        assert (len(response) > 0)
+        assert len(response) > 0
         TestEToro.check_trades(response)

@@ -40,10 +40,17 @@ class OkcoinApi(OKEXApi):
 
     logger = logging.getLogger()
 
-    def __init__(self, api_server: str, api_key: str, secret_key: str, password: str, timeout: float):
-        assert(isinstance(api_key, str))
-        assert(isinstance(secret_key, str))
-        assert(isinstance(password, str))
+    def __init__(
+        self,
+        api_server: str,
+        api_key: str,
+        secret_key: str,
+        password: str,
+        timeout: float,
+    ):
+        assert isinstance(api_key, str)
+        assert isinstance(secret_key, str)
+        assert isinstance(password, str)
 
         super().__init__(api_server, api_key, secret_key, password, timeout)
 
@@ -52,7 +59,12 @@ class OkcoinApi(OKEXApi):
 
     # Retrieve address for specified tokens Funding Account
     def get_deposit_address(self, currency: str = "eth") -> str:
-        return self._http_get(f"/api/account/v3/deposit/address", f"currency={currency}", requires_auth=True, has_cursor=False)
+        return self._http_get(
+            f"/api/account/v3/deposit/address",
+            f"currency={currency}",
+            requires_auth=True,
+            has_cursor=False,
+        )
 
     # Transfer funds from Funding Account to Spot Trading Account
     def transfer_funds(self, currency: str, amount: Wad) -> bool:
@@ -60,7 +72,7 @@ class OkcoinApi(OKEXApi):
             "amount": str(amount),
             "currency": currency,
             "from": 6,  # Funding Account
-            "to": 1  # Spot Account
+            "to": 1,  # Spot Account
         }
 
         transfer = self._http_post(f"/api/account/v3/transfer", data)

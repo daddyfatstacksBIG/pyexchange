@@ -23,12 +23,12 @@ from pymaker.token import ERC20Token
 
 
 class Uniswap(Contract):
-    abi = Contract._load_abi(__name__, 'abi/UNISWAP.abi')
+    abi = Contract._load_abi(__name__, "abi/UNISWAP.abi")
 
     def __init__(self, web3: Web3, token: Address, exchange: Address):
-        assert(isinstance(web3, Web3))
-        assert(isinstance(token, Address))
-        assert(isinstance(exchange, Address))
+        assert isinstance(web3, Web3)
+        assert isinstance(token, Address)
+        assert isinstance(exchange, Address)
 
         self.web3 = web3
         self.exchange = exchange
@@ -54,44 +54,67 @@ class Uniswap(Contract):
         return token_reserve / eth_reserve
 
     def get_eth_token_input_price(self, amount: Wad):
-        assert(isinstance(amount, Wad))
+        assert isinstance(amount, Wad)
 
-        return Wad(self._contract.functions.getEthToTokenInputPrice(amount.value).call())
+        return Wad(
+            self._contract.functions.getEthToTokenInputPrice(amount.value).call()
+        )
 
     def get_token_eth_input_price(self, amount: Wad):
-        assert(isinstance(amount, Wad))
+        assert isinstance(amount, Wad)
 
-        return Wad(self._contract.functions.getTokenToEthInputPrice(amount.value).call())
+        return Wad(
+            self._contract.functions.getTokenToEthInputPrice(amount.value).call()
+        )
 
     def get_eth_token_output_price(self, amount: Wad):
-        assert(isinstance(amount, Wad))
+        assert isinstance(amount, Wad)
 
-        return Wad(self._contract.functions.getEthToTokenOutputPrice(amount.value).call())
+        return Wad(
+            self._contract.functions.getEthToTokenOutputPrice(amount.value).call()
+        )
 
     def get_token_eth_output_price(self, amount: Wad):
-        assert(isinstance(amount, Wad))
+        assert isinstance(amount, Wad)
 
-        return Wad(self._contract.functions.getTokenToEthOutputPrice(amount.value).call())
+        return Wad(
+            self._contract.functions.getTokenToEthOutputPrice(amount.value).call()
+        )
 
     def get_current_liquidity(self):
-        return Wad(self._contract.functions.balanceOf(self.account_address.address).call())
+        return Wad(
+            self._contract.functions.balanceOf(self.account_address.address).call()
+        )
 
     def add_liquidity(self, amount: Wad) -> Transact:
-        assert(isinstance(amount, Wad))
+        assert isinstance(amount, Wad)
 
         min_liquidity = Wad.from_number(0.5) * amount
         max_token = amount * self.get_exchange_rate() * Wad.from_number(1.00000001)
 
-        return Transact(self, self.web3, self.abi, self.exchange, self._contract,
-                        'addLiquidity', [min_liquidity.value,
-                                         max_token.value, self._deadline()],
-                        {'value': amount.value})
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.exchange,
+            self._contract,
+            "addLiquidity",
+            [min_liquidity.value, max_token.value, self._deadline()],
+            {"value": amount.value},
+        )
 
     def remove_liquidity(self, amount: Wad) -> Transact:
-        assert(isinstance(amount, Wad))
+        assert isinstance(amount, Wad)
 
-        return Transact(self, self.web3, self.abi, self.exchange, self._contract,
-                        'removeLiquidity', [amount.value, 1, 1, self._deadline()])
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.exchange,
+            self._contract,
+            "removeLiquidity",
+            [amount.value, 1, 1, self._deadline()],
+        )
 
     def eth_to_token_swap_input(self, eth_sold: Wad) -> Transact:
         """Convert ETH to Tokens.
@@ -102,8 +125,16 @@ class Uniswap(Contract):
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
         """
-        return Transact(self, self.web3, self.abi, self.exchange, self._contract,
-                        'ethToTokenSwapInput', [1, self._deadline()], {'value': eth_sold.value})
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.exchange,
+            self._contract,
+            "ethToTokenSwapInput",
+            [1, self._deadline()],
+            {"value": eth_sold.value},
+        )
 
     def token_to_eth_swap_input(self, tokens_sold: Wad) -> Transact:
         """Convert Tokens to ETH.
@@ -114,15 +145,22 @@ class Uniswap(Contract):
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
         """
-        return Transact(self, self.web3, self.abi, self.exchange, self._contract,
-                        'tokenToEthSwapInput', [tokens_sold.value, 1, self._deadline()])
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.exchange,
+            self._contract,
+            "tokenToEthSwapInput",
+            [tokens_sold.value, 1, self._deadline()],
+        )
 
     def _deadline(self):
         """Get a predefined deadline."""
         return int(time.time()) + 1000
 
     def __eq__(self, other):
-        assert(isinstance(other, UniswapExchange))
+        assert isinstance(other, UniswapExchange)
         return self.address == other.address
 
     def __repr__(self):

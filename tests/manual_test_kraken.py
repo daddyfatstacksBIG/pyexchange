@@ -27,7 +27,7 @@ kraken = KrakenApi("https://api.kraken.com", sys.argv[1], sys.argv[2], 9.5)
 # print(kraken.get_balances())
 # order1 = kraken.place_order('ETHDAI', False, Wad.from_number(0.5), Wad.from_number(1))
 # order2 = kraken.place_order('XETHZEUR', True, Wad.from_number(5000), Wad.from_number(0.1))
-print(kraken.get_orders('ETHDAI'))
+print(kraken.get_orders("ETHDAI"))
 
 # print(kraken.cancel_order(order))
 # print(kraken.get_orders('XETHZEUR'))

@@ -29,32 +29,36 @@ class ErcdexApi(ZrxApiV2):
     """
 
     def cancel_order(self, order: Order) -> bool:
-        assert(isinstance(order, Order))
+        assert isinstance(order, Order)
 
         order_hash = self.zrx_exchange.get_order_hash(order.zrx_order)
         self.logger.info(f"Cancelling order #{order_hash}...")
 
-        cancel_msg = self.zrx_exchange.web3.sha3(text=f'cancel:{order_hash}')
+        cancel_msg = self.zrx_exchange.web3.sha3(text=f"cancel:{order_hash}")
         v, r, s = to_vrs(eth_sign(cancel_msg, self.zrx_exchange.web3))
-        signature = bytes_to_hexstring(bytes([v])) + \
-            bytes_to_hexstring(r)[2:] + \
-            bytes_to_hexstring(s)[2:] + \
-            "03"  # EthSign
+        signature = (
+            bytes_to_hexstring(bytes([v]))
+            + bytes_to_hexstring(r)[2:]
+            + bytes_to_hexstring(s)[2:]
+            + "03"
+        )  # EthSign
 
-        cancel = {"cancellations": [
-            {"orderHash": order_hash, "signature": signature}]}
+        cancel = {"cancellations": [{"orderHash": order_hash, "signature": signature}]}
 
-        response = requests.post(f"{self.zrx_api.api_server}/v2/orders/cancel",
-                                 json=cancel,
-                                 timeout=self.zrx_api.timeout)
+        response = requests.post(
+            f"{self.zrx_api.api_server}/v2/orders/cancel",
+            json=cancel,
+            timeout=self.zrx_api.timeout,
+        )
         if response.ok:
             data = response.json()[0]  # We suppose only one cancel
-            if data.get('success'):
+            if data.get("success"):
                 self.logger.info(f"Cancelled order #{order_hash}")
                 return True
             else:
                 self.logger.error(
-                    f"Failed to cancel: {http_response_summary(response)}")
+                    f"Failed to cancel: {http_response_summary(response)}"
+                )
                 return False
         else:
             self.logger.info(f"Failed to cancel order #{order_hash}")

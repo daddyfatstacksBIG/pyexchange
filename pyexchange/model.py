@@ -22,13 +22,15 @@ from pymaker import Wad
 
 
 class Candle:
-    def __init__(self, timestamp: int, open: Wad, close: Wad, high: Wad, low: Wad, volume: Wad):
-        assert(isinstance(timestamp, int))
-        assert(isinstance(open, Wad))
-        assert(isinstance(close, Wad))
-        assert(isinstance(high, Wad))
-        assert(isinstance(low, Wad))
-        assert(isinstance(volume, Wad))
+    def __init__(
+        self, timestamp: int, open: Wad, close: Wad, high: Wad, low: Wad, volume: Wad
+    ):
+        assert isinstance(timestamp, int)
+        assert isinstance(open, Wad)
+        assert isinstance(close, Wad)
+        assert isinstance(high, Wad)
+        assert isinstance(low, Wad)
+        assert isinstance(volume, Wad)
 
         self.timestamp = timestamp
         self.open = open
@@ -42,18 +44,20 @@ class Candle:
 
 
 class Order:
-    def __init__(self,
-                 order_id: str,
-                 timestamp: int,
-                 pair: str,
-                 is_sell: bool,
-                 price: Wad,
-                 amount: Wad):
-        assert (isinstance(pair, str))
-        assert (isinstance(timestamp, int))
-        assert (isinstance(is_sell, bool))
-        assert (isinstance(price, Wad))
-        assert (isinstance(amount, Wad))
+    def __init__(
+        self,
+        order_id: str,
+        timestamp: int,
+        pair: str,
+        is_sell: bool,
+        price: Wad,
+        amount: Wad,
+    ):
+        assert isinstance(pair, str)
+        assert isinstance(timestamp, int)
+        assert isinstance(is_sell, bool)
+        assert isinstance(price, Wad)
+        assert isinstance(amount, Wad)
 
         self.order_id = order_id
         self.timestamp = timestamp
@@ -79,38 +83,39 @@ class Order:
         return self.amount if self.is_sell else self.amount * self.price
 
     def __hash__(self):
-        return hash((self.order_id,
-                     self.timestamp,
-                     self.price,
-                     self.amount))
+        return hash((self.order_id, self.timestamp, self.price, self.amount))
 
     def __repr__(self):
         return pformat(vars(self))
 
     @staticmethod
     def from_message(item):
-        return Order(order_id=item['oid'],
-                     timestamp=item['created_at'],
-                     pair=item['book'],
-                     is_sell=True if item['side'] == 'sell' else False,
-                     price=Wad.from_number(item['price']),
-                     amount=Wad.from_number(item['amount']))
+        return Order(
+            order_id=item["oid"],
+            timestamp=item["created_at"],
+            pair=item["book"],
+            is_sell=True if item["side"] == "sell" else False,
+            price=Wad.from_number(item["price"]),
+            amount=Wad.from_number(item["amount"]),
+        )
 
 
 class Trade:
-    def __init__(self,
-                 trade_id: str,
-                 timestamp: int,
-                 pair: Optional[str],
-                 is_sell: bool,
-                 price: Wad,
-                 amount: Wad):
-        assert(isinstance(trade_id, str))
-        assert(isinstance(timestamp, int))
-        assert(isinstance(pair, str) or (pair is None))
-        assert(isinstance(is_sell, bool))
-        assert(isinstance(price, Wad))
-        assert(isinstance(amount, Wad))
+    def __init__(
+        self,
+        trade_id: str,
+        timestamp: int,
+        pair: Optional[str],
+        is_sell: bool,
+        price: Wad,
+        amount: Wad,
+    ):
+        assert isinstance(trade_id, str)
+        assert isinstance(timestamp, int)
+        assert isinstance(pair, str) or (pair is None)
+        assert isinstance(is_sell, bool)
+        assert isinstance(price, Wad)
+        assert isinstance(amount, Wad)
 
         self.trade_id = trade_id
         self.timestamp = timestamp
@@ -120,30 +125,38 @@ class Trade:
         self.amount = amount
 
     def __eq__(self, other):
-        assert(isinstance(other, Trade))
-        return self.trade_id == other.trade_id and \
-            self.timestamp == other.timestamp and \
-            self.pair == other.pair and \
-            self.is_sell == other.is_sell and \
-            self.price == other.price and \
-            self.amount == other.amount
+        assert isinstance(other, Trade)
+        return (
+            self.trade_id == other.trade_id
+            and self.timestamp == other.timestamp
+            and self.pair == other.pair
+            and self.is_sell == other.is_sell
+            and self.price == other.price
+            and self.amount == other.amount
+        )
 
     def __hash__(self):
-        return hash((self.trade_id,
-                     self.timestamp,
-                     self.pair,
-                     self.is_sell,
-                     self.price,
-                     self.amount))
+        return hash(
+            (
+                self.trade_id,
+                self.timestamp,
+                self.pair,
+                self.is_sell,
+                self.price,
+                self.amount,
+            )
+        )
 
     def __repr__(self):
         return pformat(vars(self))
 
     @staticmethod
     def from_message(item):
-        return Trade(trade_id=item['oid'],
-                     timestamp=item['created_at'],
-                     pair=item['book'],
-                     is_sell=True if item['side'] == 'sell' else False,
-                     price=Wad.from_number(item['price']),
-                     amount=Wad.from_number(item['amount']))
+        return Trade(
+            trade_id=item["oid"],
+            timestamp=item["created_at"],
+            pair=item["book"],
+            is_sell=True if item["side"] == "sell" else False,
+            price=Wad.from_number(item["price"]),
+            amount=Wad.from_number(item["amount"]),
+        )

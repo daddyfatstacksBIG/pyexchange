@@ -30,24 +30,26 @@ from pymaker.util import bytes_to_hexstring, hexstring_to_bytes, http_response_s
 
 
 class Order:
-    def __init__(self,
-                 order_id: int,
-                 order_hash: str,
-                 nonce: int,
-                 timestamp: int,
-                 is_sell: bool,
-                 price: Wad,
-                 amount: Wad,
-                 money: Wad):
+    def __init__(
+        self,
+        order_id: int,
+        order_hash: str,
+        nonce: int,
+        timestamp: int,
+        is_sell: bool,
+        price: Wad,
+        amount: Wad,
+        money: Wad,
+    ):
 
-        assert(isinstance(order_id, int))
-        assert(isinstance(order_hash, str))
-        assert(isinstance(nonce, int))
-        assert(isinstance(timestamp, int))
-        assert(isinstance(is_sell, bool))
-        assert(isinstance(price, Wad))
-        assert(isinstance(amount, Wad))
-        assert(isinstance(money, Wad))
+        assert isinstance(order_id, int)
+        assert isinstance(order_hash, str)
+        assert isinstance(nonce, int)
+        assert isinstance(timestamp, int)
+        assert isinstance(is_sell, bool)
+        assert isinstance(price, Wad)
+        assert isinstance(amount, Wad)
+        assert isinstance(money, Wad)
 
         self.order_id = order_id
         self.order_hash = order_hash
@@ -92,8 +94,8 @@ class IDEX(Contract):
         address: Ethereum address of the IDEX Exchange contract.
     """
 
-    abi = Contract._load_abi(__name__, 'abi/IDEX.abi')
-    bin = Contract._load_bin(__name__, 'abi/IDEX.bin')
+    abi = Contract._load_abi(__name__, "abi/IDEX.abi")
+    bin = Contract._load_bin(__name__, "abi/IDEX.bin")
 
     ETH_TOKEN = Address("0x0000000000000000000000000000000000000000")
 
@@ -108,11 +110,14 @@ class IDEX(Contract):
         Returns:
             An `IDEX` class instance.
         """
-        return IDEX(web3=web3, address=Contract._deploy(web3, IDEX.abi, IDEX.bin, [fee_account.address]))
+        return IDEX(
+            web3=web3,
+            address=Contract._deploy(web3, IDEX.abi, IDEX.bin, [fee_account.address]),
+        )
 
     def __init__(self, web3: Web3, address: Address):
-        assert(isinstance(web3, Web3))
-        assert(isinstance(address, Address))
+        assert isinstance(web3, Web3)
+        assert isinstance(address, Address)
 
         self.web3 = web3
         self.address = address
@@ -136,11 +141,11 @@ class IDEX(Contract):
             tokens: List of :py:class:`pymaker.token.ERC20Token` class instances.
             approval_function: Approval function (i.e. approval mode).
         """
-        assert(isinstance(tokens, list))
-        assert(callable(approval_function))
+        assert isinstance(tokens, list)
+        assert callable(approval_function)
 
         for token in tokens:
-            approval_function(token, self.address, 'IDEX Exchange contract')
+            approval_function(token, self.address, "IDEX Exchange contract")
 
     def deposit(self, amount: Wad) -> Transact:
         """Deposits `amount` of raw ETH to IDEX.
@@ -151,8 +156,17 @@ class IDEX(Contract):
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
         """
-        assert(isinstance(amount, Wad))
-        return Transact(self, self.web3, self.abi, self.address, self._contract, 'deposit', [], {'value': amount.value})
+        assert isinstance(amount, Wad)
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.address,
+            self._contract,
+            "deposit",
+            [],
+            {"value": amount.value},
+        )
 
     def withdraw(self, amount: Wad) -> Transact:
         """Withdraws `amount` of raw ETH from IDEX.
@@ -165,9 +179,16 @@ class IDEX(Contract):
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
         """
-        assert(isinstance(amount, Wad))
-        return Transact(self, self.web3, self.abi, self.address, self._contract, 'withdraw',
-                        [self.ETH_TOKEN.address, amount.value])
+        assert isinstance(amount, Wad)
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.address,
+            self._contract,
+            "withdraw",
+            [self.ETH_TOKEN.address, amount.value],
+        )
 
     def balance_of(self, user: Address) -> Wad:
         """Returns the amount of raw ETH deposited by the specified user.
@@ -178,8 +199,12 @@ class IDEX(Contract):
         Returns:
             The raw ETH balance kept in the IDEX Exchange contract by the specified user.
         """
-        assert(isinstance(user, Address))
-        return Wad(self._contract.functions.balanceOf(self.ETH_TOKEN.address, user.address).call())
+        assert isinstance(user, Address)
+        return Wad(
+            self._contract.functions.balanceOf(
+                self.ETH_TOKEN.address, user.address
+            ).call()
+        )
 
     def deposit_token(self, token: Address, amount: Wad) -> Transact:
         """Deposits `amount` of ERC20 token `token` to IDEX.
@@ -195,10 +220,17 @@ class IDEX(Contract):
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
         """
-        assert(isinstance(token, Address))
-        assert(isinstance(amount, Wad))
-        return Transact(self, self.web3, self.abi, self.address, self._contract, 'depositToken',
-                        [token.address, amount.value])
+        assert isinstance(token, Address)
+        assert isinstance(amount, Wad)
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.address,
+            self._contract,
+            "depositToken",
+            [token.address, amount.value],
+        )
 
     def withdraw_token(self, token: Address, amount: Wad) -> Transact:
         """Withdraws `amount` of ERC20 token `token` from IDEX.
@@ -212,10 +244,17 @@ class IDEX(Contract):
         Returns:
             A :py:class:`pymaker.Transact` instance, which can be used to trigger the transaction.
         """
-        assert(isinstance(token, Address))
-        assert(isinstance(amount, Wad))
-        return Transact(self, self.web3, self.abi, self.address, self._contract, 'withdraw',
-                        [token.address, amount.value])
+        assert isinstance(token, Address)
+        assert isinstance(amount, Wad)
+        return Transact(
+            self,
+            self.web3,
+            self.abi,
+            self.address,
+            self._contract,
+            "withdraw",
+            [token.address, amount.value],
+        )
 
     def balance_of_token(self, token: Address, user: Address) -> Wad:
         """Returns the amount of ERC20 token `token` deposited by the specified user.
@@ -227,9 +266,11 @@ class IDEX(Contract):
         Returns:
             The ERC20 token `token` balance kept in the IDEX contract by the specified user.
         """
-        assert(isinstance(token, Address))
-        assert(isinstance(user, Address))
-        return Wad(self._contract.functions.balanceOf(token.address, user.address).call())
+        assert isinstance(token, Address)
+        assert isinstance(user, Address)
+        return Wad(
+            self._contract.functions.balanceOf(token.address, user.address).call()
+        )
 
     def __repr__(self):
         return f"IDEX('{self.address}')"
@@ -243,40 +284,46 @@ class IDEXApi:
     Attributes:
         idex: The IDEX Exchange contract.
     """
+
     logger = logging.getLogger()
     timeout = 15.5
 
     def __init__(self, idex: IDEX, api_server: str, timeout: float):
-        assert(isinstance(idex, IDEX))
-        assert(isinstance(api_server, str))
-        assert(isinstance(timeout, float))
+        assert isinstance(idex, IDEX)
+        assert isinstance(api_server, str)
+        assert isinstance(timeout, float)
 
         self.idex = idex
         self.api_server = api_server
         self.timeout = timeout
 
     def ticker(self, pair: str):
-        assert(isinstance(pair, str))
-        return self._http_post("/returnTicker", {'market': pair})
+        assert isinstance(pair, str)
+        return self._http_post("/returnTicker", {"market": pair})
 
     def next_nonce(self) -> int:
-        return int(self._http_post("/returnNextNonce", {'address': self._our_address()})['nonce'])
+        return int(
+            self._http_post("/returnNextNonce", {"address": self._our_address()})[
+                "nonce"
+            ]
+        )
 
     def get_balances(self):
-        return self._http_post("/returnCompleteBalances", {'address': self._our_address()})
+        return self._http_post(
+            "/returnCompleteBalances", {"address": self._our_address()}
+        )
 
     def get_orders(self, pair: str) -> List[Order]:
-        assert(isinstance(pair, str))
+        assert isinstance(pair, str)
 
         result = self._http_post(
-            "/returnOpenOrders", {'market': pair, 'address': self._our_address()})
+            "/returnOpenOrders", {"market": pair, "address": self._our_address()}
+        )
         return list(map(self._json_to_order, result))
 
-    def place_order(self,
-                    pay_token: Address,
-                    pay_amount: Wad,
-                    buy_token: Address,
-                    buy_amount: Wad) -> Order:
+    def place_order(
+        self, pay_token: Address, pay_amount: Wad, buy_token: Address, buy_amount: Wad
+    ) -> Order:
         """Places a new order.
 
         Args:
@@ -288,72 +335,77 @@ class IDEXApi:
         Returns:
             New order as an instance of the :py:class:`pyexchange.idex.Order` class.
         """
-        assert(isinstance(pay_token, Address))
-        assert(isinstance(pay_amount, Wad))
-        assert(isinstance(buy_token, Address))
-        assert(isinstance(buy_amount, Wad))
+        assert isinstance(pay_token, Address)
+        assert isinstance(pay_amount, Wad)
+        assert isinstance(buy_token, Address)
+        assert isinstance(buy_amount, Wad)
 
         expires = 0
         nonce = self.next_nonce()
-        order_hash = keccak_256(encode_address(self.idex.address) +
-                                encode_address(buy_token) +
-                                encode_uint256(buy_amount.value) +
-                                encode_address(pay_token) +
-                                encode_uint256(pay_amount.value) +
-                                encode_uint256(expires) +
-                                encode_uint256(nonce) +
-                                encode_address(Address(self._our_address()))).digest()
+        order_hash = keccak_256(
+            encode_address(self.idex.address)
+            + encode_address(buy_token)
+            + encode_uint256(buy_amount.value)
+            + encode_address(pay_token)
+            + encode_uint256(pay_amount.value)
+            + encode_uint256(expires)
+            + encode_uint256(nonce)
+            + encode_address(Address(self._our_address()))
+        ).digest()
 
         signature = eth_sign(order_hash, self.idex.web3)
         v, r, s = to_vrs(signature)
 
         data = {
-            'tokenBuy': buy_token.address,
-            'amountBuy': str(buy_amount.value),
-            'tokenSell': pay_token.address,
-            'amountSell': str(pay_amount.value),
-            'address': self._our_address(),
-            'nonce': str(nonce),
-            'expires': expires,
-            'v': v,
-            'r': bytes_to_hexstring(r),
-            's': bytes_to_hexstring(s)
+            "tokenBuy": buy_token.address,
+            "amountBuy": str(buy_amount.value),
+            "tokenSell": pay_token.address,
+            "amountSell": str(pay_amount.value),
+            "address": self._our_address(),
+            "nonce": str(nonce),
+            "expires": expires,
+            "v": v,
+            "r": bytes_to_hexstring(r),
+            "s": bytes_to_hexstring(s),
         }
 
         self.logger.info(
-            f"Placing order selling {pay_amount} {pay_token} for {buy_amount} {buy_token}...")
+            f"Placing order selling {pay_amount} {pay_token} for {buy_amount} {buy_token}..."
+        )
 
         result = self._http_post("/order", data)
         order = self._json_to_order(result)
 
         self.logger.info(
-            f"Placed order selling {pay_amount} {pay_token} for {buy_amount} {buy_token} as #{order.order_id}")
+            f"Placed order selling {pay_amount} {pay_token} for {buy_amount} {buy_token} as #{order.order_id}"
+        )
 
         return order
 
     def cancel_order(self, order: Order) -> bool:
-        assert(isinstance(order, Order))
+        assert isinstance(order, Order)
 
         nonce = self.next_nonce()
-        signed_data = keccak_256(encode_bytes(hexstring_to_bytes(order.order_hash)) +
-                                 encode_uint256(nonce)).digest()
+        signed_data = keccak_256(
+            encode_bytes(hexstring_to_bytes(order.order_hash)) + encode_uint256(nonce)
+        ).digest()
 
         signature = eth_sign(signed_data, self.idex.web3)
         v, r, s = to_vrs(signature)
 
         data = {
-            'orderHash': order.order_hash,
-            'nonce': str(nonce),
-            'address': self._our_address(),
-            'v': v,
-            'r': bytes_to_hexstring(r),
-            's': bytes_to_hexstring(s)
+            "orderHash": order.order_hash,
+            "nonce": str(nonce),
+            "address": self._our_address(),
+            "v": v,
+            "r": bytes_to_hexstring(r),
+            "s": bytes_to_hexstring(s),
         }
 
         self.logger.info(f"Cancelling order #{order.order_id}...")
 
         result = self._http_post("/cancel", data)
-        success = result['success'] == 1
+        success = result["success"] == 1
 
         if success:
             self.logger.info(f"Cancelled order #{order.order_id}")
@@ -367,42 +419,49 @@ class IDEXApi:
 
     @staticmethod
     def _json_to_order(data: dict) -> Order:
-        assert(isinstance(data, dict))
+        assert isinstance(data, dict)
 
-        return Order(order_id=data['orderNumber'],
-                     order_hash=data['orderHash'],
-                     nonce=data['params']['nonce'],
-                     timestamp=data['timestamp'],
-                     is_sell=data['type'] == 'sell',
-                     price=Wad.from_number(data['price']),
-                     amount=Wad.from_number(data['amount']),
-                     money=Wad.from_number(data['total']))
+        return Order(
+            order_id=data["orderNumber"],
+            order_hash=data["orderHash"],
+            nonce=data["params"]["nonce"],
+            timestamp=data["timestamp"],
+            is_sell=data["type"] == "sell",
+            price=Wad.from_number(data["price"]),
+            amount=Wad.from_number(data["amount"]),
+            money=Wad.from_number(data["total"]),
+        )
 
     @staticmethod
     def _result(result) -> dict:
         if not result.ok:
             raise Exception(
-                f"IDEX API invalid HTTP response: {http_response_summary(result)}")
+                f"IDEX API invalid HTTP response: {http_response_summary(result)}"
+            )
 
         try:
             data = result.json()
         except Exception:
             raise Exception(
-                f"IDEX API invalid JSON response: {http_response_summary(result)}")
+                f"IDEX API invalid JSON response: {http_response_summary(result)}"
+            )
 
-        if 'error' in data:
+        if "error" in data:
             raise Exception(
-                f"IDEX API negative response: {http_response_summary(result)}")
+                f"IDEX API negative response: {http_response_summary(result)}"
+            )
 
         return data
 
     def _http_post(self, resource: str, params: dict):
-        assert(isinstance(resource, str))
-        assert(isinstance(params, dict))
+        assert isinstance(resource, str)
+        assert isinstance(params, dict)
 
-        return self._result(requests.post(url=f"{self.api_server}{resource}",
-                                          json=params,
-                                          timeout=self.timeout))
+        return self._result(
+            requests.post(
+                url=f"{self.api_server}{resource}", json=params, timeout=self.timeout
+            )
+        )
 
     def __repr__(self):
         return f"IDEXApi()"

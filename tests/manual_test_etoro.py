@@ -20,8 +20,7 @@ import sys
 from pyexchange.etoro import EToroApi
 from pymaker.numeric import Wad
 
-etoro = EToroApi(sys.argv[1], 'test_account',
-                 sys.argv[2], open(sys.argv[3], 'r'), 9.5)
+etoro = EToroApi(sys.argv[1], "test_account", sys.argv[2], open(sys.argv[3], "r"), 9.5)
 print("Starting eToroAPI with the following parameters: ", sys.argv)
 
 # GET "/api/v1/instruments"
@@ -32,7 +31,7 @@ print("Starting eToroAPI with the following parameters: ", sys.argv)
 # print(etoro.get_balances())
 
 # GET "/api/v1/orders"
-print(etoro.get_orders('ethusdc', 'open'))
+print(etoro.get_orders("ethusdc", "open"))
 
 # POST /api/v1/orders
 # print(etoro.place_order('ethusdc', 'buy', Wad.from_number(144.94033), Wad.from_number(.005)))
@@ -41,7 +40,7 @@ print(etoro.get_orders('ethusdc', 'open'))
 # print(etoro.cancel_order('c8e579b0-cfb8-4297-9983-7deb5c454761'))
 
 # GET /api/v1/trades
-print(etoro.get_trades('ethusdc'))
+print(etoro.get_trades("ethusdc"))
 # print(etoro.get_trades('ethusdc', '1578959828'))
 
 # GET /api​/v1​/funds​/deposits​/{coin}​/address

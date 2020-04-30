@@ -27,22 +27,21 @@ from pymaker import Wad, Address
 
 
 logging.basicConfig(
-    format='%(asctime)-15s %(levelname)-8s %(message)s', level=logging.INFO)
+    format="%(asctime)-15s %(levelname)-8s %(message)s", level=logging.INFO
+)
 
-web3 = Web3(HTTPProvider("http://127.0.0.1:8545",
-                         request_kwargs={"timeout": 600}))
+web3 = Web3(HTTPProvider("http://127.0.0.1:8545", request_kwargs={"timeout": 600}))
 web3.eth.defaultAccount = sys.argv[1]
-ddex = DdexApi(web3, 'https://api.ddex.io', 15.5)
+ddex = DdexApi(web3, "https://api.ddex.io", 15.5)
 
 # print(ddex.get_markets())
 # print(ddex.ticker('DAI-ETH'))
 # print(ddex.get_balances())
-print(ddex.get_orders('DAI-ETH'))
+print(ddex.get_orders("DAI-ETH"))
 
-ddex.place_order('DAI-ETH', True, Wad.from_number(0.003236),
-                 Wad.from_number(5))
-print(ddex.get_orders('DAI-ETH'))
+ddex.place_order("DAI-ETH", True, Wad.from_number(0.003236), Wad.from_number(5))
+print(ddex.get_orders("DAI-ETH"))
 time.sleep(1)
-for order in ddex.get_orders('DAI-ETH'):
+for order in ddex.get_orders("DAI-ETH"):
     ddex.cancel_order(order.order_id)
-print(ddex.get_orders('DAI-ETH'))
+print(ddex.get_orders("DAI-ETH"))

@@ -31,8 +31,8 @@ from pyexchange.dydx import DydxApi, Order, Trade
 
 class MockedResponse:
     def __init__(self, text: str, status_code=200):
-        assert (isinstance(text, str))
-        assert (isinstance(status_code, int))
+        assert isinstance(text, str)
+        assert isinstance(status_code, int)
         self.status_code = status_code
         self.ok = 200 <= status_code < 400
         self.text = text
@@ -40,6 +40,7 @@ class MockedResponse:
 
     def json(self, **kwargs):
         return json.loads(self.text)
+
 
 # Determines response based upon the DyDx Client method used
 
@@ -49,10 +50,10 @@ class DydxMockServer:
     responses = {}
     cwd = os.path.dirname(os.path.realpath(__file__))
     response_file_path = os.path.join(cwd, "mock/dydx-api-responses")
-    with open(response_file_path, 'r') as file:
+    with open(response_file_path, "r") as file:
         for line in file:
             kvp = line.split("|")
-            assert(len(kvp) == 2)
+            assert len(kvp) == 2
             responses[kvp[0]] = kvp[1]
 
     @staticmethod
@@ -84,15 +85,17 @@ class TestDydx:
     def setup_method(self):
         self.dydx = DydxApi(
             "http://localhost:8889",
-            "dcba44978751342a68e81b0e487de87e52720f6f94792cc237045bce0f9d05fc"
+            "dcba44978751342a68e81b0e487de87e52720f6f94792cc237045bce0f9d05fc",
         )
 
     def test_get_markets(self, mocker):
-        mocker.patch("dydx.client.Client.get_markets",
-                     side_effect=DydxMockServer.handle_get_pairs)
+        mocker.patch(
+            "dydx.client.Client.get_markets",
+            side_effect=DydxMockServer.handle_get_pairs,
+        )
         response = self.dydx.get_markets()
-        assert(len(response) > 0)
-        assert("WETH-DAI" in response)
+        assert len(response) > 0
+        assert "WETH-DAI" in response
 
     def test_order(self):
         price = Wad.from_number(4.8765)
@@ -104,19 +107,21 @@ class TestDydx:
             pair="WETH-DAI",
             is_sell=False,
             price=price,
-            amount=amount
+            amount=amount,
         )
-        assert(order.price == order.sell_to_buy_price)
-        assert(order.price == order.buy_to_sell_price)
+        assert order.price == order.sell_to_buy_price
+        assert order.price == order.buy_to_sell_price
 
     def test_get_balances(self, mocker):
-        mocker.patch("dydx.client.Client.get_my_balances",
-                     side_effect=DydxMockServer.handle_get_balances)
+        mocker.patch(
+            "dydx.client.Client.get_my_balances",
+            side_effect=DydxMockServer.handle_get_balances,
+        )
         response = self.dydx.get_balances()
-        assert(len(response) > 0)
+        assert len(response) > 0
         for balance in response:
             if "ETH" in balance["currency"]:
-                assert(float(balance["wei"]) > 0)
+                assert float(balance["wei"]) > 0
 
     @staticmethod
     def check_orders(orders):
@@ -125,9 +130,9 @@ class TestDydx:
         duplicate_first_found = -1
         current_time = int(time.time())
         for index, order in enumerate(orders):
-            assert(isinstance(order, Order))
-            assert(order.order_id is not None)
-            assert(order.timestamp < current_time)
+            assert isinstance(order, Order)
+            assert order.order_id is not None
+            assert order.timestamp < current_time
 
             # Check for duplicates
             if order.order_id in by_oid:
@@ -138,35 +143,43 @@ class TestDydx:
                 by_oid[order.order_id] = order
 
         if duplicate_count > 0:
-            print(f"{duplicate_count} duplicate orders were found, "
-                  f"starting at index {duplicate_first_found}")
+            print(
+                f"{duplicate_count} duplicate orders were found, "
+                f"starting at index {duplicate_first_found}"
+            )
         else:
             print("no duplicates were found")
-        assert(duplicate_count == 0)
+        assert duplicate_count == 0
 
     def test_get_orders(self, mocker):
         instrument_id = "WETH-DAI"
-        mocker.patch("dydx.client.Client.get_my_orders",
-                     side_effect=DydxMockServer.handle_get_orders)
+        mocker.patch(
+            "dydx.client.Client.get_my_orders",
+            side_effect=DydxMockServer.handle_get_orders,
+        )
         response = self.dydx.get_orders(instrument_id)
-        assert (len(response) > 0)
+        assert len(response) > 0
         for order in response:
-            assert(isinstance(order.is_sell, bool))
-            assert(Wad(order.price) > Wad(0))
+            assert isinstance(order.is_sell, bool)
+            assert Wad(order.price) > Wad(0)
         TestDydx.check_orders(response)
 
     def test_order_placement_and_cancellation(self, mocker):
         instrument_id = "WETH-DAI"
         side = "sell"
-        mocker.patch("dydx.client.Client.place_order",
-                     side_effect=DydxMockServer.handle_place_order)
-        mocker.patch("dydx.client.Client.cancel_order",
-                     side_effect=DydxMockServer.handle_cancel_order)
+        mocker.patch(
+            "dydx.client.Client.place_order",
+            side_effect=DydxMockServer.handle_place_order,
+        )
+        mocker.patch(
+            "dydx.client.Client.cancel_order",
+            side_effect=DydxMockServer.handle_cancel_order,
+        )
         order_id = self.dydx.place_order(instrument_id, False, 135.000, 0.1)
-        assert(isinstance(order_id, str))
-        assert(order_id is not None)
+        assert isinstance(order_id, str)
+        assert order_id is not None
         cancel_result = self.dydx.cancel_order(order_id)
-        assert(cancel_result is True)
+        assert cancel_result is True
 
     @staticmethod
     def check_trades(trades):
@@ -176,7 +189,7 @@ class TestDydx:
         missorted_found = False
         last_timestamp = 0
         for index, trade in enumerate(trades):
-            assert(isinstance(trade, Trade))
+            assert isinstance(trade, Trade)
             if trade.trade_id in by_tradeid:
                 print(f"found duplicate trade {trade.trade_id}")
                 duplicate_count += 1
@@ -190,17 +203,21 @@ class TestDydx:
                         missorted_found = True
                     last_timestamp = trade.timestamp
         if duplicate_count > 0:
-            print(f"{duplicate_count} duplicate trades were found, "
-                  f"starting at index {duplicate_first_found}")
+            print(
+                f"{duplicate_count} duplicate trades were found, "
+                f"starting at index {duplicate_first_found}"
+            )
         else:
             print("no duplicates were found")
-        assert(duplicate_count == 0)
-        assert(missorted_found is False)
+        assert duplicate_count == 0
+        assert missorted_found is False
 
     def test_get_trades(self, mocker):
         instrument_id = "WETH-DAI"
-        mocker.patch("dydx.client.Client.get_my_fills",
-                     side_effect=DydxMockServer.handle_get_trades)
+        mocker.patch(
+            "dydx.client.Client.get_my_fills",
+            side_effect=DydxMockServer.handle_get_trades,
+        )
         response = self.dydx.get_trades(instrument_id)
-        assert (len(response) > 0)
+        assert len(response) > 0
         TestDydx.check_trades(response)

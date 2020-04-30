@@ -20,7 +20,7 @@ import sys
 from pyexchange.korbit import KorbitApi
 from pymaker.numeric import Wad
 
-korbit = KorbitApi('https://api.korbit.co.kr', sys.argv[1], sys.argv[2], 9.5)
+korbit = KorbitApi("https://api.korbit.co.kr", sys.argv[1], sys.argv[2], 9.5)
 print("Starting KorbitAPI with the following parameters: ", sys.argv)
 
 # GET "/api/v1/instruments"

@@ -29,12 +29,12 @@ print("OKEXApi created\n")
 
 
 pair = "btc_dai"
-#l1 = okex.ticker(pair)
-#print(f"best bid: {l1['best_bid']}  best ask: {l1['best_ask']}")
+# l1 = okex.ticker(pair)
+# print(f"best bid: {l1['best_bid']}  best ask: {l1['best_ask']}")
 # book = okex.depth(pair)
 # print(f"bids: {book['bids'][0:3]}")
 # print(f"asks: {book['asks'][0:3]}")
-print(okex.candles(pair, '1min')[0:3])
+print(okex.candles(pair, "1min")[0:3])
 print()
 
 # balances = okex.get_balances()
@@ -51,23 +51,29 @@ def print_orders(orders):
     print(f"received {len(orders)} orders")
     for index, order in enumerate(orders):
         side = "sell" if order.is_sell else "buy "
-        fill_status = f"with {order.filled_amount} filled" if order.filled_amount > Wad(
-            0) else "unfilled"
-        print(f"[{index}] {order.order_id} {side} {str(order.amount)[:9]} "
-              f"at {str(order.price)[:12]} "
-              f"on {datetime.datetime.utcfromtimestamp(order.timestamp)} "
-              + fill_status)
+        fill_status = (
+            f"with {order.filled_amount} filled"
+            if order.filled_amount > Wad(0)
+            else "unfilled"
+        )
+        print(
+            f"[{index}] {order.order_id} {side} {str(order.amount)[:9]} "
+            f"at {str(order.price)[:12]} "
+            f"on {datetime.datetime.utcfromtimestamp(order.timestamp)} " + fill_status
+        )
         # f"page {order.page}")
 
 
 def print_trades(trades):
     for trade in trades:
         side = "sell" if trade.is_sell else "buy "
-        print(f"{side} {str(trade.amount)[:9]} {trade.amount_symbol} "
-              f"at {str(trade.price)[:12]} "
-              f"{pair.split('_')[1]} "
-              f"on {datetime.datetime.utcfromtimestamp(trade.timestamp)} "
-              f"({trade.trade_id})")
+        print(
+            f"{side} {str(trade.amount)[:9]} {trade.amount_symbol} "
+            f"at {str(trade.price)[:12]} "
+            f"{pair.split('_')[1]} "
+            f"on {datetime.datetime.utcfromtimestamp(trade.timestamp)} "
+            f"({trade.trade_id})"
+        )
 
 
 # Gets open orders

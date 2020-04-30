@@ -20,7 +20,7 @@ import sys
 from pyexchange.bitso import BitsoApi
 from pymaker.numeric import Wad
 
-bitso = BitsoApi('https://api.bitso.com', sys.argv[1],  sys.argv[2], 9.5)
+bitso = BitsoApi("https://api.bitso.com", sys.argv[1], sys.argv[2], 9.5)
 print("Starting BitsoApi with the following parameters: ", sys.argv)
 
 # GET "/v3/balance/"
@@ -36,7 +36,7 @@ print("Starting BitsoApi with the following parameters: ", sys.argv)
 # print(bitso.place_order('eth_mxn', 'buy', 5200.000, .01))
 
 # DELETE /api/v1/orders/{order_id}
-print(bitso.cancel_order('w0Z3B1MmmcytBFu0'))
+print(bitso.cancel_order("w0Z3B1MmmcytBFu0"))
 
 # GET /api/v1/trades
 # print(bitso.get_trades("eth_mxn"))

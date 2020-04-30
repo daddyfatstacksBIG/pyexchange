@@ -34,29 +34,40 @@ from pymaker.zrx import ZrxExchange
 class TestZrxApi:
     def setup_method(self):
         py_evm_main.GENESIS_GAS_LIMIT = 10000000
-        self.web3 = Web3(EthereumTesterProvider(
-            EthereumTester(PyEVMBackend())))
+        self.web3 = Web3(EthereumTesterProvider(EthereumTester(PyEVMBackend())))
         self.web3.eth.defaultAccount = self.web3.eth.accounts[0]
         self.our_address = Address(self.web3.eth.defaultAccount)
 
         self.zrx_token = ERC20Token(
-            web3=self.web3, address=deploy_contract(self.web3, 'ZRXToken'))
+            web3=self.web3, address=deploy_contract(self.web3, "ZRXToken")
+        )
         self.token_transfer_proxy_address = deploy_contract(
-            self.web3, 'TokenTransferProxy')
+            self.web3, "TokenTransferProxy"
+        )
         self.exchange = ZrxExchange.deploy(
-            self.web3, self.zrx_token.address, self.token_transfer_proxy_address)
-        self.web3.eth.contract(abi=json.loads(pkg_resources.resource_string('pymaker.deployment', f'abi/TokenTransferProxy.abi')))(
-            address=self.token_transfer_proxy_address.address).functions.addAuthorizedAddress(self.exchange.address.address).transact()
+            self.web3, self.zrx_token.address, self.token_transfer_proxy_address
+        )
+        self.web3.eth.contract(
+            abi=json.loads(
+                pkg_resources.resource_string(
+                    "pymaker.deployment", f"abi/TokenTransferProxy.abi"
+                )
+            )
+        )(
+            address=self.token_transfer_proxy_address.address
+        ).functions.addAuthorizedAddress(
+            self.exchange.address.address
+        ).transact()
 
         self.zrx_api = ZrxApi(self.exchange)
 
-        self.dgx = DSToken.deploy(self.web3, 'DGX')
-        self.dai = DSToken.deploy(self.web3, 'DAI')
+        self.dgx = DSToken.deploy(self.web3, "DGX")
+        self.dai = DSToken.deploy(self.web3, "DAI")
         self.pair = Pair(self.dgx.address, 9, self.dai.address, 18)
 
     def test_getting_balances(self):
         # given
-        self.dgx.mint(Wad(17 * 10**9)).transact()
+        self.dgx.mint(Wad(17 * 10 ** 9)).transact()
         self.dai.mint(Wad.from_number(17)).transact()
 
         # when
@@ -68,12 +79,13 @@ class TestZrxApi:
     def test_sell_order(self):
         # when
         zrx_order = self.zrx_api.place_order(
-            self.pair, True, Wad.from_number(45.0), Wad.from_number(5.0), 999)
+            self.pair, True, Wad.from_number(45.0), Wad.from_number(5.0), 999
+        )
         # then
         assert zrx_order.buy_token == self.dai.address
         assert zrx_order.buy_amount == Wad.from_number(5.0 * 45.0)
         assert zrx_order.pay_token == self.dgx.address
-        assert zrx_order.pay_amount == Wad(5 * 10**9)
+        assert zrx_order.pay_amount == Wad(5 * 10 ** 9)
         assert zrx_order.expiration == 999
 
         # when
@@ -88,10 +100,11 @@ class TestZrxApi:
     def test_buy_order(self):
         # when
         zrx_order = self.zrx_api.place_order(
-            self.pair, False, Wad.from_number(45.0), Wad.from_number(5.0), 999)
+            self.pair, False, Wad.from_number(45.0), Wad.from_number(5.0), 999
+        )
         # then
         assert zrx_order.buy_token == self.dgx.address
-        assert zrx_order.buy_amount == Wad(5 * 10**9)
+        assert zrx_order.buy_amount == Wad(5 * 10 ** 9)
         assert zrx_order.pay_token == self.dai.address
         assert zrx_order.pay_amount == Wad.from_number(5.0 * 45.0)
         assert zrx_order.expiration == 999
