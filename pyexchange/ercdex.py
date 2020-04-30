@@ -14,11 +14,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import requests
-from pyexchange.zrxv2 import Order, ZrxApiV2
-from pymaker.sign import eth_sign, to_vrs
-from pymaker.util import bytes_to_hexstring, http_response_summary
+from pymaker.sign import eth_sign
+from pymaker.sign import to_vrs
+from pymaker.util import bytes_to_hexstring
+from pymaker.util import http_response_summary
+
+from pyexchange.zrxv2 import Order
+from pyexchange.zrxv2 import ZrxApiV2
 
 
 class ErcdexApi(ZrxApiV2):

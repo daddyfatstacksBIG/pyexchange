@@ -14,13 +14,13 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import datetime
 import sys
 from pprint import pprint
 
-from pyexchange.okex import OKEXApi
 from pymaker import Wad
+
+from pyexchange.okex import OKEXApi
 
 okex = OKEXApi(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], 15.5)
 print(sys.argv)

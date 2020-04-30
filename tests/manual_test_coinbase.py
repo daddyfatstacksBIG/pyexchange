@@ -14,13 +14,14 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import base64
 import json
 import sys
 
+from pymaker import Address
+from pymaker import Wad
+
 from pyexchange.coinbase import CoinbaseApi
-from pymaker import Address, Wad
 
 coinbase = CoinbaseApi(
     "https://api.pro.coinbase.com", sys.argv[1], sys.argv[2], sys.argv[3], 9.5

@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import sys
 
-from pyexchange.okcoin import OkcoinApi
 from pymaker.numeric import Wad
+
+from pyexchange.okcoin import OkcoinApi
 
 okcoin = OkcoinApi("https://www.okcoin.com", sys.argv[1], sys.argv[2], sys.argv[3], 9.5)
 print("Starting OkcoinAPI with the following parameters: ", sys.argv)

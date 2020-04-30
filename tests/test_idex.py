@@ -14,14 +14,15 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import pytest
-from pyexchange.idex import IDEX
 from pymaker import Address
 from pymaker.approval import directly
 from pymaker.numeric import Wad
 from pymaker.token import DSToken
-from web3 import EthereumTesterProvider, Web3
+from web3 import EthereumTesterProvider
+from web3 import Web3
+
+from pyexchange.idex import IDEX
 
 
 class TestIDEX:

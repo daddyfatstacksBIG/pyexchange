@@ -14,20 +14,21 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import hashlib
 import hmac
 import logging
 import time
 from pprint import pformat
-from typing import List, Optional
+from typing import List
+from typing import Optional
 from urllib.parse import urlencode
 
 import dateutil.parser
 import requests
-from pyexchange.api import PyexAPI
 from pymaker.numeric import Wad
 from pymaker.util import http_response_summary
+
+from pyexchange.api import PyexAPI
 
 
 class Order:

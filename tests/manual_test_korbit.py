@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import sys
 
-from pyexchange.korbit import KorbitApi
 from pymaker.numeric import Wad
+
+from pyexchange.korbit import KorbitApi
 
 korbit = KorbitApi("https://api.korbit.co.kr", sys.argv[1], sys.argv[2], 9.5)
 print("Starting KorbitAPI with the following parameters: ", sys.argv)

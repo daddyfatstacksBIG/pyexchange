@@ -14,13 +14,15 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import json
 import os
 import time
 
-from pyexchange.dydx import DydxApi, Order, Trade
 from pymaker import Wad
+
+from pyexchange.dydx import DydxApi
+from pyexchange.dydx import Order
+from pyexchange.dydx import Trade
 
 # Even though DyDx is a Decentralized Exchange,
 # supporting infrastructure required for the orderbook is only available on mainnet.

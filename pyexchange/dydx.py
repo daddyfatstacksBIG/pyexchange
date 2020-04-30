@@ -14,20 +14,22 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import logging
 from decimal import Decimal
 from pprint import pformat
-from typing import List, Optional
+from typing import List
+from typing import Optional
 
 import dateutil.parser
 import dydx.constants as consts
 import dydx.util as utils
 from dydx.client import Client
 from eth_utils import from_wei
-from pyexchange.api import PyexAPI
-from pyexchange.model import Order, Trade
 from pymaker import Wad
+
+from pyexchange.api import PyexAPI
+from pyexchange.model import Order
+from pyexchange.model import Trade
 
 
 class DydxOrder(Order):

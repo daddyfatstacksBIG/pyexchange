@@ -14,17 +14,19 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import logging
 import random
 import time
 from pprint import pformat
-from typing import List, Optional
+from typing import List
+from typing import Optional
 
 import requests
-from pymaker import Address, Contract
+from pymaker import Address
+from pymaker import Contract
 from pymaker.numeric import Wad
-from pymaker.util import bytes_to_int, http_response_summary
+from pymaker.util import bytes_to_int
+from pymaker.util import http_response_summary
 from web3 import Web3
 from web3._utils.events import get_event_data
 

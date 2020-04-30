@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import sys
 
-from pyexchange.bitso import BitsoApi
 from pymaker.numeric import Wad
+
+from pyexchange.bitso import BitsoApi
 
 bitso = BitsoApi("https://api.bitso.com", sys.argv[1], sys.argv[2], 9.5)
 print("Starting BitsoApi with the following parameters: ", sys.argv)

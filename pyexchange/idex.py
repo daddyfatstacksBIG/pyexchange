@@ -14,18 +14,24 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import logging
 from pprint import pformat
 from typing import List
 
 import requests
-from pymaker import Address, Contract, Transact, Wad
-from pymaker.sign import eth_sign, to_vrs
-from pymaker.tightly_packed import encode_address, encode_bytes, encode_uint256
+from pymaker import Address
+from pymaker import Contract
+from pymaker import Transact
+from pymaker import Wad
+from pymaker.sign import eth_sign
+from pymaker.sign import to_vrs
+from pymaker.tightly_packed import encode_address
+from pymaker.tightly_packed import encode_bytes
+from pymaker.tightly_packed import encode_uint256
 from pymaker.token import ERC20Token
-from pymaker.util import (bytes_to_hexstring, hexstring_to_bytes,
-                          http_response_summary)
+from pymaker.util import bytes_to_hexstring
+from pymaker.util import hexstring_to_bytes
+from pymaker.util import http_response_summary
 from web3 import Web3
 
 

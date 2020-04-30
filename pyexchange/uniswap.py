@@ -14,10 +14,12 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import time
 
-from pymaker import Address, Contract, Transact, Wad
+from pymaker import Address
+from pymaker import Contract
+from pymaker import Transact
+from pymaker import Wad
 from pymaker.token import ERC20Token
 from web3 import Web3
 

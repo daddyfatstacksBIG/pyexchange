@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import sys
 
-from pyexchange.etoro import EToroApi
 from pymaker.numeric import Wad
+
+from pyexchange.etoro import EToroApi
 
 etoro = EToroApi(sys.argv[1], "test_account", sys.argv[2], open(sys.argv[3], "r"), 9.5)
 print("Starting eToroAPI with the following parameters: ", sys.argv)

@@ -14,16 +14,17 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import json
 import os
 import re
 import time
 
+from pymaker import Wad
+
 from pyexchange.model import Candle
 from pyexchange.okcoin import OkcoinApi
-from pyexchange.okex import Order, Trade
-from pymaker import Wad
+from pyexchange.okex import Order
+from pyexchange.okex import Trade
 
 # Models HTTP response, produced by OkcoinMockServer
 

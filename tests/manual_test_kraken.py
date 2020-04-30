@@ -14,11 +14,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import sys
 
-from pyexchange.kraken import KrakenApi
 from pymaker import Wad
+
+from pyexchange.kraken import KrakenApi
 
 kraken = KrakenApi("https://api.kraken.com", sys.argv[1], sys.argv[2], 9.5)
 

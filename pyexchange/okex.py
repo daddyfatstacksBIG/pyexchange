@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import base64
 import datetime
 import hmac
@@ -25,9 +24,10 @@ from typing import List
 
 import dateutil.parser
 import requests
-from pyexchange.model import Candle
 from pymaker.numeric import Wad
 from pymaker.util import http_response_summary
+
+from pyexchange.model import Candle
 
 
 class Order:

@@ -14,15 +14,18 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import json
 import os
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 
-from pyexchange.korbit import KorbitApi, Order, Trade
 from pymaker import Wad
+
+from pyexchange.korbit import KorbitApi
+from pyexchange.korbit import Order
+from pyexchange.korbit import Trade
 
 # Models HTTP response, produced by KorbitMockServer
 

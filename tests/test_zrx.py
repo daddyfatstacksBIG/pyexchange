@@ -14,20 +14,23 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import json
 
-import pkg_resources
-
 import eth_tester.backends.pyevm.main as py_evm_main
-from eth_tester import EthereumTester, PyEVMBackend
-from pyexchange.zrx import Pair, ZrxApi
+import pkg_resources
+from eth_tester import EthereumTester
+from eth_tester import PyEVMBackend
 from pymaker import Address
 from pymaker.deployment import deploy_contract
 from pymaker.numeric import Wad
-from pymaker.token import DSToken, ERC20Token
+from pymaker.token import DSToken
+from pymaker.token import ERC20Token
 from pymaker.zrx import ZrxExchange
-from web3 import EthereumTesterProvider, Web3
+from web3 import EthereumTesterProvider
+from web3 import Web3
+
+from pyexchange.zrx import Pair
+from pyexchange.zrx import ZrxApi
 
 
 class TestZrxApi:

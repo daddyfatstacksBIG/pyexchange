@@ -14,15 +14,18 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import json
 import os
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 
-from pyexchange.bitso import BitsoApi, Order, Trade
 from pymaker import Wad
+
+from pyexchange.bitso import BitsoApi
+from pyexchange.bitso import Order
+from pyexchange.bitso import Trade
 
 # Models HTTP response, produced by BitsoMockServer
 
