@@ -39,9 +39,8 @@ from pyexchange.api import PyexAPI
 
 
 class Order:
-    def __init__(
-        self, order_id: str, pair: str, is_sell: bool, price: Wad, amount: Wad
-    ):
+    def __init__(self, order_id: str, pair: str, is_sell: bool, price: Wad,
+                 amount: Wad):
 
         assert isinstance(order_id, str)
         assert isinstance(pair, str)
@@ -87,17 +86,16 @@ class Order:
 
 class Trade:
     def __init__(
-        self,
-        trade_id: Optional[id],
-        timestamp: int,
-        pair: str,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
+            self,
+            trade_id: Optional[id],
+            timestamp: int,
+            pair: str,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
     ):
-        assert (
-            isinstance(trade_id, int) or (trade_id is None) or isinstance(trade_id, str)
-        )
+        assert (isinstance(trade_id, int) or (trade_id is None)
+                or isinstance(trade_id, str))
         assert isinstance(timestamp, int)
         assert isinstance(pair, str)
         assert isinstance(is_sell, bool)
@@ -113,26 +111,20 @@ class Trade:
 
     def __eq__(self, other):
         assert isinstance(other, Trade)
-        return (
-            self.trade_id == other.trade_id
-            and self.timestamp == other.timestamp
-            and self.pair == other.pair
-            and self.is_sell == other.is_sell
-            and self.price == other.price
-            and self.amount == other.amount
-        )
+        return (self.trade_id == other.trade_id
+                and self.timestamp == other.timestamp
+                and self.pair == other.pair and self.is_sell == other.is_sell
+                and self.price == other.price and self.amount == other.amount)
 
     def __hash__(self):
-        return hash(
-            (
-                self.trade_id,
-                self.timestamp,
-                self.pair,
-                self.is_sell,
-                self.price,
-                self.amount,
-            )
-        )
+        return hash((
+            self.trade_id,
+            self.timestamp,
+            self.pair,
+            self.is_sell,
+            self.price,
+            self.amount,
+        ))
 
     def __repr__(self):
         return pformat(vars(self))
@@ -167,13 +159,13 @@ class LeverjAPI(PyexAPI):
     logger = logging.getLogger()
 
     def __init__(
-        self,
-        web3: Web3,
-        api_server: str,
-        account_id: str,
-        api_key: str,
-        api_secret: str,
-        timeout: float,
+            self,
+            web3: Web3,
+            api_server: str,
+            account_id: str,
+            api_key: str,
+            api_secret: str,
+            timeout: float,
     ):
         assert isinstance(api_key, str)
         assert isinstance(api_secret, str)
@@ -197,7 +189,8 @@ class LeverjAPI(PyexAPI):
         return self._http_authenticated("GET", "/api/v1", "/account", None)
 
     def get_balances(self):
-        return self._http_authenticated("GET", "/api/v1", "/account/balance", None)
+        return self._http_authenticated("GET", "/api/v1", "/account/balance",
+                                        None)
 
     def get_balance(self, coin: str):
         assert isinstance(coin, str)
@@ -255,43 +248,39 @@ class LeverjAPI(PyexAPI):
         assert isinstance(page_number, int)
         count = 200
         result_pair = []
-        result = self._http_authenticated(
-            "GET", "/api/v1", f"/account/execution?count={count}", None
-        )
+        result = self._http_authenticated("GET", "/api/v1",
+                                          f"/account/execution?count={count}",
+                                          None)
         for item in result:
             if item["instrument"] == pair:
                 result_pair.append(item)
 
-        return list(map(lambda item: Trade.from_our_list(pair, item), result_pair))
+        return list(
+            map(lambda item: Trade.from_our_list(pair, item), result_pair))
 
     def get_all_trades(self, pair: str, page_number: int = 1) -> List[Trade]:
         assert isinstance(pair, str)
         assert isinstance(page_number, int)
-        result = self._http_authenticated(
-            "GET", "/api/v1", f"/instrument/{pair}/trade", None
-        )
+        result = self._http_authenticated("GET", "/api/v1",
+                                          f"/instrument/{pair}/trade", None)
 
         return list(map(lambda item: Trade.from_all_list(pair, item), result))
 
     def get_symbol_trades(self, symbol: str):
-        return self._http_authenticated(
-            "GET", "/api/v1", f"/instrument/{symbol}/trade", None
-        )
+        return self._http_authenticated("GET", "/api/v1",
+                                        f"/instrument/{symbol}/trade", None)
 
     def get_orderbook_symbol(self, symbol: str):
-        return self._http_authenticated(
-            "GET", "/api/v1", f"/instrument/{symbol}/orderbook", None
-        )
+        return self._http_authenticated("GET", "/api/v1",
+                                        f"/instrument/{symbol}/orderbook",
+                                        None)
 
-    def createNewOrder(
-        self, side: str, price: str, quantity: str, orderInstrument: dict
-    ) -> dict:
-        precision = self.get_product(orderInstrument["symbol"])[
-            "quoteSignificantDigits"
-        ]
-        qty_precision = self.get_product(orderInstrument["symbol"])[
-            "baseSignificantDigits"
-        ]
+    def createNewOrder(self, side: str, price: str, quantity: str,
+                       orderInstrument: dict) -> dict:
+        precision = self.get_product(
+            orderInstrument["symbol"])["quoteSignificantDigits"]
+        qty_precision = self.get_product(
+            orderInstrument["symbol"])["baseSignificantDigits"]
         order = {
             "orderType": "LMT",
             "side": side,
@@ -302,7 +291,8 @@ class LeverjAPI(PyexAPI):
             "token": orderInstrument["quote"]["address"],
             "instrument": orderInstrument["symbol"],
         }
-        order["signature"] = sign_order(order, orderInstrument, self.api_secret)
+        order["signature"] = sign_order(order, orderInstrument,
+                                        self.api_secret)
         return order
 
     def place_order(self, pair: str, is_sell: bool, price: Wad, amount: Wad):
@@ -317,14 +307,14 @@ class LeverjAPI(PyexAPI):
         quantity = str(amount)
         order = self.createNewOrder(side, price, quantity, orderInstrument)
         self.logger.info(f"LEVERJ: order is {order}")
-        return self._http_authenticated("POST", "/api/v1", "/order", [order])[0]["uuid"]
+        return self._http_authenticated("POST", "/api/v1", "/order",
+                                        [order])[0]["uuid"]
 
     def cancel_order(self, order_id: str) -> bool:
         assert isinstance(order_id, str)
 
-        result = self._http_authenticated(
-            "DELETE", "/api/v1", f"/order/{order_id}", None
-        )
+        result = self._http_authenticated("DELETE", "/api/v1",
+                                          f"/order/{order_id}", None)
 
         if order_id != result[0][0]:
             return False
@@ -342,7 +332,8 @@ class LeverjAPI(PyexAPI):
 
         return result
 
-    def _http_authenticated(self, method: str, api_path: str, resource: str, body):
+    def _http_authenticated(self, method: str, api_path: str, resource: str,
+                            body):
         assert isinstance(method, str)
         assert isinstance(api_path, str)
         assert isinstance(resource, str)
@@ -361,12 +352,10 @@ class LeverjAPI(PyexAPI):
 
         v, r, s = to_vrs(signature)
 
-        auth_header = (
-            f"NONCE {self.account_id}.{self.api_key}"
-            f".{v}"
-            f".{bytes_to_hexstring(r)}"
-            f".{bytes_to_hexstring(s)}"
-        )
+        auth_header = (f"NONCE {self.account_id}.{self.api_key}"
+                       f".{v}"
+                       f".{bytes_to_hexstring(r)}"
+                       f".{bytes_to_hexstring(s)}")
 
         headers = {"Authorization": auth_header, "Nonce": str(nonce)}
         if body is not None:
@@ -379,8 +368,7 @@ class LeverjAPI(PyexAPI):
                 data=data,
                 headers=headers,
                 timeout=self.timeout,
-            )
-        )
+            ))
 
     def _create_signature(self, params: str) -> str:
         assert isinstance(params, str)
@@ -436,9 +424,8 @@ class LeverJ(Contract):
         assert isinstance(token_address, str)
         assert isinstance(amount, int)
 
-        token_contract = self._get_contract(
-            self.web3, self.token_abi, Address(token_address)
-        )
+        token_contract = self._get_contract(self.web3, self.token_abi,
+                                            Address(token_address))
         return Transact(
             self,
             self.web3,
@@ -450,19 +437,16 @@ class LeverJ(Contract):
             {},
         ).transact(from_address=self.middle_account)
 
-    def deposit_ether(self, leverjobj: LeverjAPI, amount: Wad, gluon_block_number):
+    def deposit_ether(self, leverjobj: LeverjAPI, amount: Wad,
+                      gluon_block_number):
         assert isinstance(leverjobj, LeverjAPI)
         assert isinstance(amount, Wad)
 
         custodian_account = self.address
         app_id = leverjobj.get_spot_exchange_id()
         if gluon_block_number is None:
-            gluon_block_number = (
-                leverjobj._http_authenticated(
-                    "GET", "/api/v1", f"/plasma/{app_id}", None
-                )["number"]
-                + 2
-            )
+            gluon_block_number = (leverjobj._http_authenticated(
+                "GET", "/api/v1", f"/plasma/{app_id}", None)["number"] + 2)
             receipt = Transact(
                 self,
                 self.web3,
@@ -471,21 +455,21 @@ class LeverJ(Contract):
                 self._contract,
                 "depositEther",
                 [app_id],
-                {"value": int(amount.value)},
+                {
+                    "value": int(amount.value)
+                },
             ).transact(from_address=self.middle_account)
             return (gluon_block_number, receipt)
         else:
             current_gluon_block = leverjobj._http_authenticated(
-                "GET", "/api/v1", f"/plasma/{app_id}", None
-            )["number"]
+                "GET", "/api/v1", f"/plasma/{app_id}", None)["number"]
             if current_gluon_block < gluon_block_number:
                 return (gluon_block_number, None)
             else:
                 return (None, None)
 
-    def deposit_token(
-        self, leverjobj: LeverjAPI, token_address: str, amount: int, gluon_block_number
-    ):
+    def deposit_token(self, leverjobj: LeverjAPI, token_address: str,
+                      amount: int, gluon_block_number):
         assert isinstance(leverjobj, LeverjAPI)
         assert isinstance(token_address, str)
         assert isinstance(amount, int)
@@ -493,12 +477,8 @@ class LeverJ(Contract):
         custodian_account = self.address
         app_id = leverjobj.get_spot_exchange_id()
         if gluon_block_number is None:
-            gluon_block_number = (
-                leverjobj._http_authenticated(
-                    "GET", "/api/v1", f"/plasma/{app_id}", None
-                )["number"]
-                + 2
-            )
+            gluon_block_number = (leverjobj._http_authenticated(
+                "GET", "/api/v1", f"/plasma/{app_id}", None)["number"] + 2)
             receipt = Transact(
                 self,
                 self.web3,
@@ -512,29 +492,26 @@ class LeverJ(Contract):
             return (gluon_block_number, receipt)
         else:
             current_gluon_block = leverjobj._http_authenticated(
-                "GET", "/api/v1", f"/plasma/{app_id}", None
-            )["number"]
+                "GET", "/api/v1", f"/plasma/{app_id}", None)["number"]
             if current_gluon_block < gluon_block_number:
                 return (gluon_block_number, None)
             else:
                 return (None, None)
 
-    def post_pending_tx_hash(
-        self, leverjobj: LeverjAPI, tx_hash: str, asset_addr: str, quantity: str
-    ):
+    def post_pending_tx_hash(self, leverjobj: LeverjAPI, tx_hash: str,
+                             asset_addr: str, quantity: str):
         assert isinstance(tx_hash, str)
         assert isinstance(asset_addr, str)
         assert isinstance(quantity, str)
 
         payload = {"txid": tx_hash, "asset": asset_addr, "quantity": quantity}
-        balance_dict = leverjobj._http_authenticated(
-            "POST", "/api/v1", "/account/deposit", payload
-        )
+        balance_dict = leverjobj._http_authenticated("POST", "/api/v1",
+                                                     "/account/deposit",
+                                                     payload)
         return balance_dict
 
-    def withdraw_token(
-        self, leverjobj: LeverjAPI, token_addr: str, quantity: int
-    ) -> int:
+    def withdraw_token(self, leverjobj: LeverjAPI, token_addr: str,
+                       quantity: int) -> int:
         assert isinstance(leverjobj, LeverjAPI)
         assert isinstance(token_addr, str)
         assert isinstance(quantity, int)
@@ -546,34 +523,33 @@ class LeverJ(Contract):
         api_secret = leverjobj.api_secret
         sha3_hash = Web3.soliditySha3(
             ["string", "string", "uint256", "uint256"],
-            [ethereum_account, token_addr, int(quantity), timestamp],
+            [ethereum_account, token_addr,
+             int(quantity), timestamp],
         )
-        signature = eth_sign(
-            sha3_hash, leverjobj.web3, api_secret, True, self.middle_account
-        )
+        signature = eth_sign(sha3_hash, leverjobj.web3, api_secret, True,
+                             self.middle_account)
         payload = {
             "asset": token_addr,
             "quantity": str(int(quantity)),
             "timestamp": timestamp,
             "signature": signature,
         }
-        leverjobj._http_authenticated("POST", "/api/v1", "/account/withdraw", payload)
-        number_dict = leverjobj._http_authenticated(
-            "GET", "/api/v1", f"/plasma/{app_id}", None
-        )
+        leverjobj._http_authenticated("POST", "/api/v1", "/account/withdraw",
+                                      payload)
+        number_dict = leverjobj._http_authenticated("GET", "/api/v1",
+                                                    f"/plasma/{app_id}", None)
         return number_dict["number"] + 3
 
-    def claim_funds(
-        self, leverjobj: LeverjAPI, asset: str, quantity: int, gluon_block_number
-    ):
+    def claim_funds(self, leverjobj: LeverjAPI, asset: str, quantity: int,
+                    gluon_block_number):
         assert isinstance(leverjobj, LeverjAPI)
         assert isinstance(asset, str)
         assert isinstance(quantity, int)
 
         app_id = leverjobj.get_spot_exchange_id()
-        current_block = leverjobj._http_authenticated(
-            "GET", "/api/v1", f"/plasma/{app_id}", None
-        )["number"]
+        current_block = leverjobj._http_authenticated("GET", "/api/v1",
+                                                      f"/plasma/{app_id}",
+                                                      None)["number"]
 
         if gluon_block_number is None:
             return self.withdraw_token(leverjobj, asset, int(quantity))

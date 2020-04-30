@@ -35,13 +35,13 @@ from pyexchange.api import PyexAPI
 
 class Order:
     def __init__(
-        self,
-        order_id: str,
-        timestamp: str,  # current UTC time at order placement
-        book: str,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
+            self,
+            order_id: str,
+            timestamp: str,  # current UTC time at order placement
+            book: str,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
     ):
 
         assert isinstance(book, str)
@@ -93,13 +93,13 @@ class Order:
 
 class Trade:
     def __init__(
-        self,
-        trade_id: str,
-        timestamp: int,
-        pair: Optional[str],
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
+            self,
+            trade_id: str,
+            timestamp: int,
+            pair: Optional[str],
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
     ):
         assert isinstance(trade_id, str)
         assert isinstance(timestamp, int)
@@ -117,26 +117,20 @@ class Trade:
 
     def __eq__(self, other):
         assert isinstance(other, Trade)
-        return (
-            self.trade_id == other.trade_id
-            and self.timestamp == other.timestamp
-            and self.pair == other.pair
-            and self.is_sell == other.is_sell
-            and self.price == other.price
-            and self.amount == other.amount
-        )
+        return (self.trade_id == other.trade_id
+                and self.timestamp == other.timestamp
+                and self.pair == other.pair and self.is_sell == other.is_sell
+                and self.price == other.price and self.amount == other.amount)
 
     def __hash__(self):
-        return hash(
-            (
-                self.trade_id,
-                self.timestamp,
-                self.pair,
-                self.is_sell,
-                self.price,
-                self.amount,
-            )
-        )
+        return hash((
+            self.trade_id,
+            self.timestamp,
+            self.pair,
+            self.is_sell,
+            self.price,
+            self.amount,
+        ))
 
     def __repr__(self):
         return pformat(vars(self))
@@ -152,7 +146,8 @@ class BitsoApi(PyexAPI):
 
     logger = logging.getLogger()
 
-    def __init__(self, api_server: str, api_key: str, secret_key: str, timeout: float):
+    def __init__(self, api_server: str, api_key: str, secret_key: str,
+                 timeout: float):
         assert isinstance(api_server, str)
         assert isinstance(api_key, str)
         assert isinstance(secret_key, str)
@@ -169,17 +164,19 @@ class BitsoApi(PyexAPI):
 
     def get_pair(self, book: str):
         assert isinstance(book, str)
-        return list(filter(lambda market: market["book"] == book, self.get_markets()))
+        return list(
+            filter(lambda market: market["book"] == book, self.get_markets()))
 
     def get_balances(self):
-        return self._http_authenticated_request("GET", "/v3/balance", {})["payload"][
-            "balances"
-        ]
+        return self._http_authenticated_request("GET", "/v3/balance",
+                                                {})["payload"]["balances"]
 
     # Trading: Retrieves a list of user's open orders
-    def get_orders(
-        self, book: str = "all", marker: str = "", sort: str = "", limit: int = 100
-    ) -> List[Order]:
+    def get_orders(self,
+                   book: str = "all",
+                   marker: str = "",
+                   sort: str = "",
+                   limit: int = 100) -> List[Order]:
         assert isinstance(book, str)
         assert isinstance(marker, str)
         assert isinstance(sort, str)
@@ -188,17 +185,21 @@ class BitsoApi(PyexAPI):
         # Params for filtering orders
         params = {
             "book": book,  # REQUIRED: pair being traded
-            "marker": marker,  # OPTIONAL: order id to compare placement time against when used with sort
+            "marker":
+            marker,  # OPTIONAL: order id to compare placement time against when used with sort
             "sort": sort,  # OPTIONAL: sort direction of returned orders
             "limit": limit,  # OPtional: number or orders to return, max 100
         }
 
-        orders = self._http_authenticated_request("GET", "/v3/open_orders", params)
-        return list(map(lambda item: Order.from_message(item), orders["payload"]))
+        orders = self._http_authenticated_request("GET", "/v3/open_orders",
+                                                  params)
+        return list(
+            map(lambda item: Order.from_message(item), orders["payload"]))
 
     # Trading: Submits and awaits acknowledgement of an (exclusively) limit order,
     # returning the order id.
-    def place_order(self, book: str, side: str, price: float, amount: float) -> str:
+    def place_order(self, book: str, side: str, price: float,
+                    amount: float) -> str:
         assert isinstance(book, str)
         assert isinstance(side, str)
         assert isinstance(price, float)
@@ -220,12 +221,10 @@ class BitsoApi(PyexAPI):
 
         self.logger.info(
             f"Placing order ({order_type}, amount {amount} of {book},"
-            f" price {price}), and client_id: {client_id}"
-        )
+            f" price {price}), and client_id: {client_id}")
 
-        response = self._http_authenticated_request(
-            "POST", f"/v3/orders", {}, request_body
-        )["payload"]
+        response = self._http_authenticated_request("POST", f"/v3/orders", {},
+                                                    request_body)["payload"]
         order_id = response["oid"]
 
         self.logger.info(
@@ -238,9 +237,8 @@ class BitsoApi(PyexAPI):
 
         self.logger.info(f"Cancelling order #{order_id}...")
 
-        result = self._http_authenticated_request(
-            "DELETE", f"/v3/orders/{order_id}", {}
-        )
+        result = self._http_authenticated_request("DELETE",
+                                                  f"/v3/orders/{order_id}", {})
         return result["success"]
 
     # Trading: Retrieves most recent trades for a given order_id or client_id.
@@ -254,7 +252,8 @@ class BitsoApi(PyexAPI):
             "limit": 100,  # OPtional: number or orders to return, max 100
         }
 
-        result = self._http_authenticated_request("GET", f"/v3/user_trades", params)
+        result = self._http_authenticated_request("GET", f"/v3/user_trades",
+                                                  params)
         return list(
             map(
                 lambda item: Trade(
@@ -266,8 +265,7 @@ class BitsoApi(PyexAPI):
                     amount=Wad.from_number(abs(float(item["major"]))),
                 ),
                 result["payload"],
-            )
-        )
+            ))
 
     def get_all_trades(self, book: str, page_number: int = 1) -> List[Trade]:
         # Params for filtering orders
@@ -288,8 +286,7 @@ class BitsoApi(PyexAPI):
                     amount=Wad.from_number(abs(float(item["amount"]))),
                 ),
                 result,
-            )
-        )
+            ))
 
     def _http_request(self, method: str, resource: str, params: dict):
         assert isinstance(method, str)
@@ -301,13 +298,14 @@ class BitsoApi(PyexAPI):
             url = f"{self.api_server}{resource}?{urlencode(params)}"
 
         return self._result(
-            requests.request(method=method, url=url, timeout=self.timeout)
-        )
+            requests.request(method=method, url=url, timeout=self.timeout))
 
     # Interprets the response to an HTTP GET, POST or DELETE request
-    def _http_authenticated_request(
-        self, method: str, resource: str, params: dict, data: dict = {}
-    ):
+    def _http_authenticated_request(self,
+                                    method: str,
+                                    resource: str,
+                                    params: dict,
+                                    data: dict = {}):
         assert isinstance(method, str)
         assert isinstance(resource, str)
         assert isinstance(params, dict) or (params is None)
@@ -326,9 +324,9 @@ class BitsoApi(PyexAPI):
         if method == "POST":
             message += json.dumps(data)
 
-        signature = hmac.new(
-            self.secret_key.encode("utf-8"), message.encode("utf-8"), hashlib.sha256
-        ).hexdigest()
+        signature = hmac.new(self.secret_key.encode("utf-8"),
+                             message.encode("utf-8"),
+                             hashlib.sha256).hexdigest()
         # Build the auth header
         auth_header = "Bitso %s:%s:%s" % (self.api_key, nonce, signature)
 
@@ -336,10 +334,10 @@ class BitsoApi(PyexAPI):
 
         if method != "POST":
             return self._result(
-                requests.request(
-                    method=method, url=url, headers=headers, timeout=self.timeout
-                )
-            )
+                requests.request(method=method,
+                                 url=url,
+                                 headers=headers,
+                                 timeout=self.timeout))
 
         else:
             return self._result(
@@ -349,8 +347,7 @@ class BitsoApi(PyexAPI):
                     headers=headers,
                     json=data,
                     timeout=self.timeout,
-                )
-            )
+                ))
 
     @staticmethod
     def _result(result) -> dict:

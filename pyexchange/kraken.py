@@ -35,13 +35,13 @@ from pyexchange.api import PyexAPI
 
 class Order:
     def __init__(
-        self,
-        order_id: str,
-        pair: str,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
-        filled_amount: Wad,
+            self,
+            order_id: str,
+            pair: str,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
+            filled_amount: Wad,
     ):
 
         assert isinstance(order_id, str)
@@ -101,13 +101,13 @@ class Order:
 
 class Trade:
     def __init__(
-        self,
-        trade_id: Optional[id],
-        timestamp: int,
-        pair: str,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
+            self,
+            trade_id: Optional[id],
+            timestamp: int,
+            pair: str,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
     ):
         assert isinstance(trade_id, str) or (trade_id is None)
         assert isinstance(timestamp, int)
@@ -125,26 +125,20 @@ class Trade:
 
     def __eq__(self, other):
         assert isinstance(other, Trade)
-        return (
-            self.trade_id == other.trade_id
-            and self.timestamp == other.timestamp
-            and self.pair == other.pair
-            and self.is_sell == other.is_sell
-            and self.price == other.price
-            and self.amount == other.amount
-        )
+        return (self.trade_id == other.trade_id
+                and self.timestamp == other.timestamp
+                and self.pair == other.pair and self.is_sell == other.is_sell
+                and self.price == other.price and self.amount == other.amount)
 
     def __hash__(self):
-        return hash(
-            (
-                self.trade_id,
-                self.timestamp,
-                self.pair,
-                self.is_sell,
-                self.price,
-                self.amount,
-            )
-        )
+        return hash((
+            self.trade_id,
+            self.timestamp,
+            self.pair,
+            self.is_sell,
+            self.price,
+            self.amount,
+        ))
 
     def __repr__(self):
         return pformat(vars(self))
@@ -179,7 +173,8 @@ class KrakenApi(PyexAPI):
 
     logger = logging.getLogger()
 
-    def __init__(self, api_server: str, api_key: str, secret_key: str, timeout: float):
+    def __init__(self, api_server: str, api_key: str, secret_key: str,
+                 timeout: float):
         assert isinstance(api_key, str)
         assert isinstance(secret_key, str)
 
@@ -214,15 +209,14 @@ class KrakenApi(PyexAPI):
         orders = []
 
         for order_id, order in result["open"].items():
-            if (
-                order["descr"]["pair"] == pair
-                and order["descr"]["ordertype"] == "limit"
-            ):
+            if (order["descr"]["pair"] == pair
+                    and order["descr"]["ordertype"] == "limit"):
                 orders.append(Order.from_our_order(order_id, order))
 
         return orders
 
-    def place_order(self, pair: str, is_sell: bool, price: Wad, amount: Wad) -> str:
+    def place_order(self, pair: str, is_sell: bool, price: Wad,
+                    amount: Wad) -> str:
         assert isinstance(pair, str)
         assert isinstance(is_sell, bool)
         assert isinstance(price, Wad)
@@ -238,8 +232,7 @@ class KrakenApi(PyexAPI):
 
         self.logger.info(
             f"Placing order ({data['type']}, amount {data['volume']} of {pair},"
-            f" price {data['price']})..."
-        )
+            f" price {data['price']})...")
 
         result = self._http_authenticated("POST", "/0/private/AddOrder", data)
 
@@ -249,7 +242,8 @@ class KrakenApi(PyexAPI):
         assert isinstance(order_id, str)
 
         self.logger.info(f"Cancelling order #{order_id}...")
-        self._http_authenticated("POST", "/0/private/CancelOrder", {"txid": order_id})
+        self._http_authenticated("POST", "/0/private/CancelOrder",
+                                 {"txid": order_id})
 
         return True
 
@@ -258,7 +252,8 @@ class KrakenApi(PyexAPI):
         assert isinstance(page_number, int)
         assert page_number == 1
 
-        result = self._http_authenticated("POST", f"/0/private/TradesHistory", {})
+        result = self._http_authenticated("POST", f"/0/private/TradesHistory",
+                                          {})
 
         trades = []
 
@@ -272,9 +267,13 @@ class KrakenApi(PyexAPI):
         assert isinstance(pair, str)
         assert isinstance(page_number, int)
 
-        result = self._http_unauthenticated("POST", f"/0/public/Trades?pair={pair}", {})
+        result = self._http_unauthenticated("POST",
+                                            f"/0/public/Trades?pair={pair}",
+                                            {})
 
-        return list(map(lambda item: Trade.from_all_response(pair, item), result[pair]))
+        return list(
+            map(lambda item: Trade.from_all_response(pair, item),
+                result[pair]))
 
     def _http_authenticated(self, method: str, resource: str, body: dict):
         assert isinstance(method, str)
@@ -285,7 +284,8 @@ class KrakenApi(PyexAPI):
         postdata = urlencode(body)
         encoded = (str(body["nonce"]) + postdata).encode()
         message = resource.encode() + hashlib.sha256(encoded).digest()
-        signature = hmac.new(base64.b64decode(self.secret_key), message, hashlib.sha512)
+        signature = hmac.new(base64.b64decode(self.secret_key), message,
+                             hashlib.sha512)
         sigdigest = base64.b64encode(signature.digest())
 
         return self._result(
@@ -293,10 +293,12 @@ class KrakenApi(PyexAPI):
                 method=method,
                 url=f"{self.api_server}{resource}",
                 data=body,
-                headers={"API-Key": self.api_key, "API-Sign": sigdigest.decode()},
+                headers={
+                    "API-Key": self.api_key,
+                    "API-Sign": sigdigest.decode()
+                },
                 timeout=self.timeout,
-            )
-        )
+            ))
 
     def _http_unauthenticated(self, method: str, resource: str, body: dict):
         assert isinstance(method, str)
@@ -311,8 +313,7 @@ class KrakenApi(PyexAPI):
                 url=f"{self.api_server}{resource}",
                 data=data,
                 timeout=self.timeout,
-            )
-        )
+            ))
 
     def _choose_nonce(self) -> int:
         with self.last_nonce_lock:
@@ -322,7 +323,8 @@ class KrakenApi(PyexAPI):
                 self.logger.info(
                     f"Wanted to use nonce '{timed_nonce}', but last nonce is '{self.last_nonce}'"
                 )
-                self.logger.info(f"In this case using '{self.last_nonce + 1}' instead")
+                self.logger.info(
+                    f"In this case using '{self.last_nonce + 1}' instead")
 
                 self.last_nonce += 1
             else:

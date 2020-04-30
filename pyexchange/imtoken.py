@@ -33,13 +33,13 @@ from pyexchange.api import PyexAPI
 
 class Trade:
     def __init__(
-        self,
-        trade_id: str,
-        timestamp: int,
-        maker_token: str,
-        taker_token: str,
-        maker_token_amount: Wad,
-        taker_token_amount: Wad,
+            self,
+            trade_id: str,
+            timestamp: int,
+            maker_token: str,
+            taker_token: str,
+            maker_token_amount: Wad,
+            taker_token_amount: Wad,
     ):
         assert isinstance(trade_id, str)
         assert isinstance(timestamp, int)
@@ -57,26 +57,22 @@ class Trade:
 
     def __eq__(self, other):
         assert isinstance(other, Trade)
-        return (
-            self.trade_id == other.trade_id
-            and self.timestamp == other.timestamp
-            and self.maker_token == other.maker_token
-            and self.taker_token == other.taker_token
-            and self.maker_token_amount == other.maker_token_amount
-            and self.taker_token_amount == other.taker_token_amount
-        )
+        return (self.trade_id == other.trade_id
+                and self.timestamp == other.timestamp
+                and self.maker_token == other.maker_token
+                and self.taker_token == other.taker_token
+                and self.maker_token_amount == other.maker_token_amount
+                and self.taker_token_amount == other.taker_token_amount)
 
     def __hash__(self):
-        return hash(
-            (
-                self.trade_id,
-                self.timestamp,
-                self.maker_token,
-                self.taker_token,
-                self.maker_token_amount,
-                self.taker_token_amount,
-            )
-        )
+        return hash((
+            self.trade_id,
+            self.timestamp,
+            self.maker_token,
+            self.taker_token,
+            self.maker_token_amount,
+            self.taker_token_amount,
+        ))
 
     def __repr__(self):
         return pformat(vars(self))
@@ -106,25 +102,23 @@ class ImtokenApi(PyexAPI):
         self.timeout = timeout
 
     def get_balances(self):
-        return self._http_unauthenticated("GET", "/getBalances", {})["balances"]
+        return self._http_unauthenticated("GET", "/getBalances",
+                                          {})["balances"]
 
     def get_trades(self, pair: str, page_number: int = 1) -> List[Trade]:
         assert isinstance(pair, str)
         assert isinstance(page_number, int)
 
         result = self._http_unauthenticated(
-            "GET", f"/getOrdersHistory?page={page_number}&perpage=100", {}
-        )["orders"]
+            "GET", f"/getOrdersHistory?page={page_number}&perpage=100",
+            {})["orders"]
         result = list(
             filter(
-                lambda item: item["status"] == "success"
-                and (
-                    f"{item['makerToken']}/{item['takerToken']}" == pair
-                    or f"{item['takerToken']}/{item['makerToken']}" == pair
-                ),
+                lambda item: item["status"] == "success" and
+                (f"{item['makerToken']}/{item['takerToken']}" == pair or
+                 f"{item['takerToken']}/{item['makerToken']}" == pair),
                 result,
-            )
-        )
+            ))
 
         return list(map(lambda item: Trade.from_list(item), result))
 
@@ -141,8 +135,7 @@ class ImtokenApi(PyexAPI):
                 url=f"{self.api_server}{resource}",
                 data=data,
                 timeout=self.timeout,
-            )
-        )
+            ))
 
     def _result(self, result) -> Optional[dict]:
         if not result.ok:

@@ -20,7 +20,8 @@ from pymaker.numeric import Wad
 
 from pyexchange.etoro import EToroApi
 
-etoro = EToroApi(sys.argv[1], "test_account", sys.argv[2], open(sys.argv[3], "r"), 9.5)
+etoro = EToroApi(sys.argv[1], "test_account", sys.argv[2],
+                 open(sys.argv[3], "r"), 9.5)
 print("Starting eToroAPI with the following parameters: ", sys.argv)
 
 # GET "/api/v1/instruments"

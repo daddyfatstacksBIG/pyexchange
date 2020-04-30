@@ -73,9 +73,8 @@ class AirswapContract(Contract):
         self.past_blocks = past_blocks
         self._contract = self._get_contract(web3, self.abi, address)
 
-    def past_fill(
-        self, number_of_past_blocks: int, event_filter: dict = None
-    ) -> List[Filled]:
+    def past_fill(self, number_of_past_blocks: int,
+                  event_filter: dict = None) -> List[Filled]:
         """Synchronously retrieve past Fill events.
         `Fill` events are emitted by the Airswap contract every time someone fills and order.
         Args:
@@ -87,9 +86,8 @@ class AirswapContract(Contract):
         assert isinstance(number_of_past_blocks, int)
         assert isinstance(event_filter, dict) or (event_filter is None)
 
-        return self._past_events(
-            self._contract, "Filled", Filled, number_of_past_blocks, event_filter
-        )
+        return self._past_events(self._contract, "Filled", Filled,
+                                 number_of_past_blocks, event_filter)
 
     def get_trades(self, pair, page_number: int = 1):
         assert isinstance(page_number, int)
@@ -99,7 +97,8 @@ class AirswapContract(Contract):
 
         # Filter trades from address
         fills = [
-            fill for fill in fills if fill.maker == address or fill.taker == address
+            fill for fill in fills
+            if fill.maker == address or fill.taker == address
         ]
 
         return fills
@@ -111,8 +110,7 @@ class AirswapContract(Contract):
 
         # Filter trades for addresses in pair
         fills = [
-            fill
-            for fill in fills
+            fill for fill in fills
             if fill.maker_token in pair and fill.taker_token in pair
         ]
 
@@ -135,28 +133,27 @@ class AirswapApi:
         self.api_server = api_server
         self.timeout = timeout
 
-    def set_intents(
-        self, buy_token: Address, sell_token: Address, alt_sell_token: Address
-    ):
+    def set_intents(self, buy_token: Address, sell_token: Address,
+                    alt_sell_token: Address):
 
         assert isinstance(buy_token, Address)
         assert isinstance(sell_token, Address)
         assert isinstance(alt_sell_token, Address)
 
         intents = self._build_intents(
-            buy_token.__str__(), sell_token.__str__()
-        ) + self._build_intents(buy_token.__str__(), alt_sell_token.__str__())
+            buy_token.__str__(), sell_token.__str__()) + self._build_intents(
+                buy_token.__str__(), alt_sell_token.__str__())
 
         return self._http_post("/setIntents", intents)
 
     def sign_order(
-        self,
-        maker_address,
-        maker_token,
-        maker_amount,
-        taker_address,
-        taker_token,
-        taker_amount,
+            self,
+            maker_address,
+            maker_token,
+            maker_amount,
+            taker_address,
+            taker_token,
+            taker_amount,
     ):
 
         order = self._build_order(
@@ -216,10 +213,9 @@ class AirswapApi:
     def _http_post(self, resource: str, params):
         assert isinstance(resource, str)
         return self._result(
-            requests.post(
-                url=f"{self.api_server}{resource}", json=params, timeout=self.timeout
-            )
-        )
+            requests.post(url=f"{self.api_server}{resource}",
+                          json=params,
+                          timeout=self.timeout))
 
     def _build_intents(self, buy_token_address, sell_token_address):
         return [
@@ -236,13 +232,13 @@ class AirswapApi:
         ]
 
     def _build_order(
-        self,
-        maker_address,
-        maker_token,
-        maker_amount,
-        taker_address,
-        taker_token,
-        taker_amount,
+            self,
+            maker_address,
+            maker_token,
+            maker_amount,
+            taker_address,
+            taker_token,
+            taker_amount,
     ):
 
         # Set 5-minute expiration on this order

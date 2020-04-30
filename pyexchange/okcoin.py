@@ -42,12 +42,12 @@ class OkcoinApi(OKEXApi):
     logger = logging.getLogger()
 
     def __init__(
-        self,
-        api_server: str,
-        api_key: str,
-        secret_key: str,
-        password: str,
-        timeout: float,
+            self,
+            api_server: str,
+            api_key: str,
+            secret_key: str,
+            password: str,
+            timeout: float,
     ):
         assert isinstance(api_key, str)
         assert isinstance(secret_key, str)

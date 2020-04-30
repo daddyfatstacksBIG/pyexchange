@@ -72,11 +72,13 @@ class DydxMockServer:
 
     @staticmethod
     def handle_place_order(**kwargs):
-        return MockedResponse(text=DydxMockServer.responses["place_order"]).json()
+        return MockedResponse(
+            text=DydxMockServer.responses["place_order"]).json()
 
     @staticmethod
     def handle_cancel_order(**kwargs):
-        return MockedResponse(text=DydxMockServer.responses["cancel_order"]).json()
+        return MockedResponse(
+            text=DydxMockServer.responses["cancel_order"]).json()
 
     @staticmethod
     def handle_get_trades(**kwargs):
@@ -145,10 +147,8 @@ class TestDydx:
                 by_oid[order.order_id] = order
 
         if duplicate_count > 0:
-            print(
-                f"{duplicate_count} duplicate orders were found, "
-                f"starting at index {duplicate_first_found}"
-            )
+            print(f"{duplicate_count} duplicate orders were found, "
+                  f"starting at index {duplicate_first_found}")
         else:
             print("no duplicates were found")
         assert duplicate_count == 0
@@ -205,10 +205,8 @@ class TestDydx:
                         missorted_found = True
                     last_timestamp = trade.timestamp
         if duplicate_count > 0:
-            print(
-                f"{duplicate_count} duplicate trades were found, "
-                f"starting at index {duplicate_first_found}"
-            )
+            print(f"{duplicate_count} duplicate trades were found, "
+                  f"starting at index {duplicate_first_found}")
         else:
             print("no duplicates were found")
         assert duplicate_count == 0

@@ -32,14 +32,14 @@ from pyexchange.model import Candle
 
 class Order:
     def __init__(
-        self,
-        order_id: str,
-        timestamp: int,
-        pair: str,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
-        filled_amount: Wad,
+            self,
+            order_id: str,
+            timestamp: int,
+            pair: str,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
+            filled_amount: Wad,
     ):
         assert isinstance(order_id, str)
         assert isinstance(timestamp, int)
@@ -67,19 +67,14 @@ class Order:
 
     @property
     def remaining_buy_amount(self) -> Wad:
-        return (
-            (self.amount - self.filled_amount) * self.price
-            if self.is_sell
-            else (self.amount - self.filled_amount)
-        )
+        return ((self.amount - self.filled_amount) *
+                self.price if self.is_sell else
+                (self.amount - self.filled_amount))
 
     @property
     def remaining_sell_amount(self) -> Wad:
-        return (
-            (self.amount - self.filled_amount)
-            if self.is_sell
-            else (self.amount - self.filled_amount) * self.price
-        )
+        return ((self.amount - self.filled_amount) if self.is_sell else
+                (self.amount - self.filled_amount) * self.price)
 
     def __eq__(self, other):
         assert isinstance(other, Order)
@@ -95,13 +90,13 @@ class Order:
 
 class Trade:
     def __init__(
-        self,
-        trade_id: str,
-        timestamp: int,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
-        amount_symbol: str,
+            self,
+            trade_id: str,
+            timestamp: int,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
+            amount_symbol: str,
     ):
         assert isinstance(trade_id, str)
         assert isinstance(timestamp, int)
@@ -119,26 +114,21 @@ class Trade:
 
     def __eq__(self, other):
         assert isinstance(other, Trade)
-        return (
-            self.trade_id == other.trade_id
-            and self.timestamp == other.timestamp
-            and self.is_sell == other.is_sell
-            and self.price == other.price
-            and self.amount == other.amount
-            and self.amount_symbol == other.amount_symbol
-        )
+        return (self.trade_id == other.trade_id
+                and self.timestamp == other.timestamp
+                and self.is_sell == other.is_sell and self.price == other.price
+                and self.amount == other.amount
+                and self.amount_symbol == other.amount_symbol)
 
     def __hash__(self):
-        return hash(
-            (
-                self.trade_id,
-                self.timestamp,
-                self.is_sell,
-                self.price,
-                self.amount,
-                self.amount_symbol,
-            )
-        )
+        return hash((
+            self.trade_id,
+            self.timestamp,
+            self.is_sell,
+            self.price,
+            self.amount,
+            self.amount_symbol,
+        ))
 
     def __repr__(self):
         return pformat(vars(self))
@@ -158,12 +148,12 @@ class OKEXApi:
     logger = logging.getLogger()
 
     def __init__(
-        self,
-        api_server: str,
-        api_key: str,
-        secret_key: str,
-        password: str,
-        timeout: float,
+            self,
+            api_server: str,
+            api_key: str,
+            secret_key: str,
+            password: str,
+            timeout: float,
     ):
         assert isinstance(api_server, str)
         assert isinstance(api_key, str)
@@ -218,7 +208,8 @@ class OKEXApi:
         return list(
             map(
                 lambda item: Candle(
-                    timestamp=int(dateutil.parser.isoparse(item[0]).timestamp()),
+                    timestamp=int(
+                        dateutil.parser.isoparse(item[0]).timestamp()),
                     open=Wad.from_number(item[1]),
                     high=Wad.from_number(item[2]),
                     low=Wad.from_number(item[3]),
@@ -226,12 +217,13 @@ class OKEXApi:
                     volume=Wad.from_number(item[5]),
                 ),
                 result,
-            )
-        )
+            ))
 
     # Account: Get available and frozen balances for each token
     def get_balances(self) -> dict:
-        result = self._http_get("/api/spot/v3/accounts", "", requires_auth=True)
+        result = self._http_get("/api/spot/v3/accounts",
+                                "",
+                                requires_auth=True)
 
         balances = {}
         for balance in result:
@@ -254,7 +246,8 @@ class OKEXApi:
 
     # Trading: Retrieves 100 most recent orders for a particular pair, newest first,
     # which have not been completely filled.
-    def get_orders_history(self, pair: str, number_of_orders: int) -> List[Order]:
+    def get_orders_history(self, pair: str,
+                           number_of_orders: int) -> List[Order]:
         assert isinstance(pair, str)
         assert isinstance(number_of_orders, int)
         assert number_of_orders <= 100
@@ -275,7 +268,8 @@ class OKEXApi:
 
     # Trading: Submits and awaits acknowledgement of a limit order,
     # returning the order id.
-    def place_order(self, pair: str, is_sell: bool, price: Wad, amount: Wad) -> str:
+    def place_order(self, pair: str, is_sell: bool, price: Wad,
+                    amount: Wad) -> str:
         assert isinstance(pair, str)
         assert isinstance(is_sell, bool)
         assert isinstance(price, Wad)
@@ -283,8 +277,7 @@ class OKEXApi:
 
         self.logger.info(
             f"Placing order ({'SELL' if is_sell else 'BUY'}, amount {amount} of {pair},"
-            f" price {price})..."
-        )
+            f" price {price})...")
 
         result = self._http_post(
             "/api/spot/v3/orders",
@@ -301,8 +294,7 @@ class OKEXApi:
 
         self.logger.info(
             f"Placed order ({'SELL' if is_sell else 'BUY'}, amount {amount} of {pair},"
-            f" price {price}) as #{order_id}"
-        )
+            f" price {price}) as #{order_id}")
 
         return order_id
 
@@ -313,9 +305,8 @@ class OKEXApi:
 
         self.logger.info(f"Cancelling order {order_id}...")
 
-        result = self._http_post(
-            f"/api/spot/v3/cancel_orders/{order_id}", {"instrument_id": pair}
-        )
+        result = self._http_post(f"/api/spot/v3/cancel_orders/{order_id}",
+                                 {"instrument_id": pair})
         # OKEX API documentation states response should contain a "result" boolean to indicate
         # success or failure.  This field was not observed during testing.  Failure is trapped
         # by a HTTP 400 response, as with other requests.
@@ -352,16 +343,15 @@ class OKEXApi:
                 lambda item: Trade(
                     trade_id=item["order_id"],
                     timestamp=int(
-                        dateutil.parser.isoparse(item["timestamp"]).timestamp()
-                    ),
+                        dateutil.parser.isoparse(item["timestamp"]).timestamp(
+                        )),
                     is_sell=item["side"] == "sell",
                     price=Wad.from_number(item["price"]),
                     amount=Wad.from_number(item["filled_size"]),
                     amount_symbol=item["instrument_id"].split("-")[0].lower(),
                 ),
                 result_part_filled + result_filled,
-            )
-        )
+            ))
 
         trades.sort(key=lambda trade: -trade.timestamp)
         return trades
@@ -386,23 +376,23 @@ class OKEXApi:
                 lambda item: Trade(
                     trade_id=item["trade_id"],
                     timestamp=int(
-                        dateutil.parser.isoparse(item["timestamp"]).timestamp()
-                    ),
+                        dateutil.parser.isoparse(item["timestamp"]).timestamp(
+                        )),
                     is_sell=item["side"] == "sell",
                     price=Wad.from_number(item["price"]),
                     amount=Wad.from_number(item["size"]),
                     amount_symbol=pair.split("_")[0].lower(),
                 ),
                 result,
-            )
-        )
+            ))
 
     @staticmethod
     def _parse_order(item: dict) -> Order:
         assert isinstance(item, dict)
         return Order(
             order_id=item["order_id"],
-            timestamp=int(dateutil.parser.isoparse(item["timestamp"]).timestamp()),
+            timestamp=int(
+                dateutil.parser.isoparse(item["timestamp"]).timestamp()),
             pair=item["instrument_id"],
             is_sell=item["side"] == "sell",
             price=Wad.from_number(item["price"]),
@@ -433,11 +423,8 @@ class OKEXApi:
         # file.close()
 
         if check_result:
-            if (
-                "error_code" in data
-                and data["error_code"] != 0
-                and data["error_code"] != ""
-            ):
+            if ("error_code" in data and data["error_code"] != 0
+                    and data["error_code"] != ""):
                 raise Exception(
                     f"OKCoin API negative response: {http_response_summary(response)}"
                 )
@@ -479,23 +466,26 @@ class OKEXApi:
         timestamp = datetime.datetime.utcnow().isoformat()[:-3] + "Z"
 
         headers = {
-            "Content-Type": "application/json",
-            "OK-ACCESS-KEY": self.api_key,
-            "OK-ACCESS-SIGN": self._create_signature(
-                timestamp, method, request_path, body
-            ),
-            "OK-ACCESS-TIMESTAMP": timestamp,
-            "OK-ACCESS-PASSPHRASE": self.password,
+            "Content-Type":
+            "application/json",
+            "OK-ACCESS-KEY":
+            self.api_key,
+            "OK-ACCESS-SIGN":
+            self._create_signature(timestamp, method, request_path, body),
+            "OK-ACCESS-TIMESTAMP":
+            timestamp,
+            "OK-ACCESS-PASSPHRASE":
+            self.password,
         }
         return headers
 
     def _http_get(
-        self,
-        resource: str,
-        params: str,
-        check_result=True,
-        requires_auth=False,
-        has_cursor=False,
+            self,
+            resource: str,
+            params: str,
+            check_result=True,
+            requires_auth=False,
+            has_cursor=False,
     ):
         assert isinstance(resource, str)
         assert isinstance(params, str)
@@ -511,8 +501,7 @@ class OKEXApi:
             requests.get(
                 url=f"{self.api_server}{request}",
                 headers=self._create_http_headers("GET", request, "")
-                if requires_auth
-                else None,
+                if requires_auth else None,
                 timeout=self.timeout,
             ),
             check_result,
@@ -528,7 +517,8 @@ class OKEXApi:
             requests.post(
                 url=f"{self.api_server}{resource}",
                 data=json.dumps(params),
-                headers=self._create_http_headers("POST", resource, json.dumps(params)),
+                headers=self._create_http_headers("POST", resource,
+                                                  json.dumps(params)),
                 timeout=self.timeout,
             ),
             True,

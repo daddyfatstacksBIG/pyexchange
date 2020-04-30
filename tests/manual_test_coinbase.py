@@ -23,9 +23,8 @@ from pymaker import Wad
 
 from pyexchange.coinbase import CoinbaseApi
 
-coinbase = CoinbaseApi(
-    "https://api.pro.coinbase.com", sys.argv[1], sys.argv[2], sys.argv[3], 9.5
-)
+coinbase = CoinbaseApi("https://api.pro.coinbase.com", sys.argv[1],
+                       sys.argv[2], sys.argv[3], 9.5)
 
 # print("get balances")
 # print(coinbase.get_balances())

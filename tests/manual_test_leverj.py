@@ -28,7 +28,6 @@ from web3 import Web3
 
 from pyexchange.leverj import LeverJ
 from pyexchange.leverj import LeverjAPI
-
 """
 for lines 31 to 44 you need have the following information
 got get a node with a port, then get an ethereum account with private key, you also need LEV, DAI, REP ethereum addresses
@@ -57,7 +56,6 @@ register_private_key(w3, sys.argv[3])
 leverj = LeverjAPI(w3, sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], 9.5)
 leverj_custodian = LeverJ(w3, Address(sys.argv[8]))
 
-
 print("get balances")
 print(leverj.get_balances())
 
@@ -74,7 +72,6 @@ print(leverj.get_product("FEEETH"))
 print(leverj.get_product("ETHDAI"))
 # print(leverj.get_product("USDCDAI"))
 print(leverj.get_product("LEVDAI"))
-
 
 print("getting config")
 result = leverj.get_config()
@@ -123,7 +120,6 @@ print(leverj.get_all_orders())
 
 # print("trades for LEVETH")
 # print(leverj.get_all_trades("LEVETH"))
-
 
 # time.sleep(15)
 #

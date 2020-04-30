@@ -36,17 +36,17 @@ class DydxOrder(Order):
     @staticmethod
     def from_message(item: list, pair: str, market_info: dict) -> Order:
         decimal_exponent = 18 - int(market_info["quoteCurrency"]["decimals"])
-        price = Wad.from_number(float(item["price"]) * 10 ** decimal_exponent)
+        price = Wad.from_number(float(item["price"]) * 10**decimal_exponent)
 
         return Order(
             order_id=item["id"],
-            timestamp=int(dateutil.parser.parse(item["createdAt"]).timestamp()),
+            timestamp=int(
+                dateutil.parser.parse(item["createdAt"]).timestamp()),
             pair=pair,
             is_sell=True if item["side"] == "SELL" else False,
             price=price,
             amount=Wad.from_number(
-                from_wei(abs(int(float(item["baseAmount"]))), "ether")
-            ),
+                from_wei(abs(int(float(item["baseAmount"]))), "ether")),
         )
 
 
@@ -54,15 +54,17 @@ class DydxTrade(Trade):
     @staticmethod
     def from_message(trade, pair: str, market_info: dict) -> Trade:
         decimal_exponent = 18 - int(market_info["quoteCurrency"]["decimals"])
-        price = Wad.from_number(float(trade["price"]) * 10 ** decimal_exponent)
+        price = Wad.from_number(float(trade["price"]) * 10**decimal_exponent)
 
         return Trade(
             trade_id=trade["uuid"],
-            timestamp=int(dateutil.parser.parse(trade["createdAt"]).timestamp()),
+            timestamp=int(
+                dateutil.parser.parse(trade["createdAt"]).timestamp()),
             pair=trade["market"],
             is_sell=True if trade["side"] == "SELL" else False,
             price=price,
-            amount=Wad.from_number(from_wei(abs(int(float(trade["amount"]))), "ether")),
+            amount=Wad.from_number(
+                from_wei(abs(int(float(trade["amount"]))), "ether")),
         )
 
 
@@ -129,20 +131,23 @@ class DydxApi(PyexAPI):
             elif int(market_id) == consts.MARKET_DAI:
                 balance["currency"] = "DAI"
 
-            balance_list.append(self._convert_balance_to_wad(balance, decimals))
+            balance_list.append(self._convert_balance_to_wad(
+                balance, decimals))
 
         return balance_list
 
     def get_balances(self):
-        return self._balances_to_list(self.client.get_my_balances()["balances"])
+        return self._balances_to_list(
+            self.client.get_my_balances()["balances"])
 
     def get_orders(self, pair: str) -> List[Order]:
         assert isinstance(pair, str)
 
-        orders = self.client.get_my_orders(
-            market=[pair], limit=None, startingBefore=None
-        )
-        open_orders = filter(lambda order: order["status"] == "OPEN", orders["orders"])
+        orders = self.client.get_my_orders(market=[pair],
+                                           limit=None,
+                                           startingBefore=None)
+        open_orders = filter(lambda order: order["status"] == "OPEN",
+                             orders["orders"])
 
         market_info = self.market_info[pair]
 
@@ -150,8 +155,7 @@ class DydxApi(PyexAPI):
             map(
                 lambda item: DydxOrder.from_message(item, pair, market_info),
                 open_orders,
-            )
-        )
+            ))
 
     def deposit_funds(self, token, amount: float):
         assert isinstance(amount, float)
@@ -162,14 +166,15 @@ class DydxApi(PyexAPI):
         if token == "USDC":
             market_id = consts.MARKET_USDC
 
-        tx_hash = self.client.eth.deposit(
-            market=market_id, wei=utils.token_to_wei(amount, market_id)
-        )
+        tx_hash = self.client.eth.deposit(market=market_id,
+                                          wei=utils.token_to_wei(
+                                              amount, market_id))
 
         receipt = self.client.eth.get_receipt(tx_hash)
         return receipt
 
-    def place_order(self, pair: str, is_sell: bool, price: float, amount: float) -> str:
+    def place_order(self, pair: str, is_sell: bool, price: float,
+                    amount: float) -> str:
         assert isinstance(pair, str)
         assert isinstance(is_sell, bool)
         assert isinstance(price, float)
@@ -177,21 +182,19 @@ class DydxApi(PyexAPI):
 
         side = "SELL" if is_sell else "BUY"
 
-        self.logger.info(
-            f"Placing order ({side}, amount {amount} of {pair}," f" price {price})..."
-        )
+        self.logger.info(f"Placing order ({side}, amount {amount} of {pair},"
+                         f" price {price})...")
 
         tick_size = abs(
-            Decimal(self.market_info[pair]["minimumTickSize"]).as_tuple().exponent
-        )
+            Decimal(
+                self.market_info[pair]["minimumTickSize"]).as_tuple().exponent)
         # As market_id is used for amount, use baseCurrency instead of quoteCurrency
         market_id = self.market_info[pair]["baseCurrency"]["soloMarketId"]
         # Convert tokens with different decimals to standard wei units
         decimal_exponent = (
-            18 - int(self.market_info[pair]["quoteCurrency"]["decimals"])
-        ) * -1
+            18 - int(self.market_info[pair]["quoteCurrency"]["decimals"])) * -1
 
-        price = round(Decimal(price * (10 ** decimal_exponent)), tick_size)
+        price = round(Decimal(price * (10**decimal_exponent)), tick_size)
 
         created_order = self.client.place_order(
             market=pair,  # structured as <MAJOR>-<Minor>
@@ -226,8 +229,7 @@ class DydxApi(PyexAPI):
             map(
                 lambda item: DydxTrade.from_message(item, pair, market_info),
                 list(result["fills"]),
-            )
-        )
+            ))
 
     def get_all_trades(self, pair: str, page_number: int = 1) -> List[Trade]:
         assert isinstance(pair, str)
@@ -241,5 +243,5 @@ class DydxApi(PyexAPI):
         market_info = self.market_info[pair]
 
         return list(
-            map(lambda item: DydxTrade.from_message(item, pair, market_info), trades)
-        )
+            map(lambda item: DydxTrade.from_message(item, pair, market_info),
+                trades))

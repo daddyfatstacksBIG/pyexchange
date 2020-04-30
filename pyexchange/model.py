@@ -21,9 +21,8 @@ from pymaker import Wad
 
 
 class Candle:
-    def __init__(
-        self, timestamp: int, open: Wad, close: Wad, high: Wad, low: Wad, volume: Wad
-    ):
+    def __init__(self, timestamp: int, open: Wad, close: Wad, high: Wad,
+                 low: Wad, volume: Wad):
         assert isinstance(timestamp, int)
         assert isinstance(open, Wad)
         assert isinstance(close, Wad)
@@ -44,13 +43,13 @@ class Candle:
 
 class Order:
     def __init__(
-        self,
-        order_id: str,
-        timestamp: int,
-        pair: str,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
+            self,
+            order_id: str,
+            timestamp: int,
+            pair: str,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
     ):
         assert isinstance(pair, str)
         assert isinstance(timestamp, int)
@@ -101,13 +100,13 @@ class Order:
 
 class Trade:
     def __init__(
-        self,
-        trade_id: str,
-        timestamp: int,
-        pair: Optional[str],
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
+            self,
+            trade_id: str,
+            timestamp: int,
+            pair: Optional[str],
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
     ):
         assert isinstance(trade_id, str)
         assert isinstance(timestamp, int)
@@ -125,26 +124,20 @@ class Trade:
 
     def __eq__(self, other):
         assert isinstance(other, Trade)
-        return (
-            self.trade_id == other.trade_id
-            and self.timestamp == other.timestamp
-            and self.pair == other.pair
-            and self.is_sell == other.is_sell
-            and self.price == other.price
-            and self.amount == other.amount
-        )
+        return (self.trade_id == other.trade_id
+                and self.timestamp == other.timestamp
+                and self.pair == other.pair and self.is_sell == other.is_sell
+                and self.price == other.price and self.amount == other.amount)
 
     def __hash__(self):
-        return hash(
-            (
-                self.trade_id,
-                self.timestamp,
-                self.pair,
-                self.is_sell,
-                self.price,
-                self.amount,
-            )
-        )
+        return hash((
+            self.trade_id,
+            self.timestamp,
+            self.pair,
+            self.is_sell,
+            self.price,
+            self.amount,
+        ))
 
     def __repr__(self):
         return pformat(vars(self))

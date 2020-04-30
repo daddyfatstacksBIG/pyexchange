@@ -26,7 +26,6 @@ okex = OKEXApi(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], 15.5)
 print(sys.argv)
 print("OKEXApi created\n")
 
-
 pair = "btc_dai"
 # l1 = okex.ticker(pair)
 # print(f"best bid: {l1['best_bid']}  best ask: {l1['best_ask']}")
@@ -40,7 +39,6 @@ print()
 # print(f"Account balances -- USDT: {balances['USDT']}")
 # print(f"                     MKR: {balances['MKR']}")
 
-
 # price in terms of quote currency (USDT), size in terms of base currency (MKR)
 # print(okex.place_order(pair, False, Wad.from_number(513), Wad.from_number(0.1)))
 # print(okex.cancel_order(pair, "2740825307024384"))
@@ -50,29 +48,23 @@ def print_orders(orders):
     print(f"received {len(orders)} orders")
     for index, order in enumerate(orders):
         side = "sell" if order.is_sell else "buy "
-        fill_status = (
-            f"with {order.filled_amount} filled"
-            if order.filled_amount > Wad(0)
-            else "unfilled"
-        )
-        print(
-            f"[{index}] {order.order_id} {side} {str(order.amount)[:9]} "
-            f"at {str(order.price)[:12]} "
-            f"on {datetime.datetime.utcfromtimestamp(order.timestamp)} " + fill_status
-        )
+        fill_status = (f"with {order.filled_amount} filled"
+                       if order.filled_amount > Wad(0) else "unfilled")
+        print(f"[{index}] {order.order_id} {side} {str(order.amount)[:9]} "
+              f"at {str(order.price)[:12]} "
+              f"on {datetime.datetime.utcfromtimestamp(order.timestamp)} " +
+              fill_status)
         # f"page {order.page}")
 
 
 def print_trades(trades):
     for trade in trades:
         side = "sell" if trade.is_sell else "buy "
-        print(
-            f"{side} {str(trade.amount)[:9]} {trade.amount_symbol} "
-            f"at {str(trade.price)[:12]} "
-            f"{pair.split('_')[1]} "
-            f"on {datetime.datetime.utcfromtimestamp(trade.timestamp)} "
-            f"({trade.trade_id})"
-        )
+        print(f"{side} {str(trade.amount)[:9]} {trade.amount_symbol} "
+              f"at {str(trade.price)[:12]} "
+              f"{pair.split('_')[1]} "
+              f"on {datetime.datetime.utcfromtimestamp(trade.timestamp)} "
+              f"({trade.trade_id})")
 
 
 # Gets open orders

@@ -34,9 +34,8 @@ from pyexchange.api import PyexAPI
 
 
 class Order:
-    def __init__(
-        self, order_id: int, pair: str, is_sell: bool, price: Wad, amount: Wad
-    ):
+    def __init__(self, order_id: int, pair: str, is_sell: bool, price: Wad,
+                 amount: Wad):
 
         assert isinstance(pair, str)
         assert isinstance(is_sell, bool)
@@ -81,13 +80,13 @@ class Order:
 
 class Trade:
     def __init__(
-        self,
-        trade_id: Optional[id],
-        timestamp: int,
-        pair: str,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
+            self,
+            trade_id: Optional[id],
+            timestamp: int,
+            pair: str,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
     ):
         assert isinstance(trade_id, int) or (trade_id is None)
         assert isinstance(timestamp, int)
@@ -105,26 +104,20 @@ class Trade:
 
     def __eq__(self, other):
         assert isinstance(other, Trade)
-        return (
-            self.trade_id == other.trade_id
-            and self.timestamp == other.timestamp
-            and self.pair == other.pair
-            and self.is_sell == other.is_sell
-            and self.price == other.price
-            and self.amount == other.amount
-        )
+        return (self.trade_id == other.trade_id
+                and self.timestamp == other.timestamp
+                and self.pair == other.pair and self.is_sell == other.is_sell
+                and self.price == other.price and self.amount == other.amount)
 
     def __hash__(self):
-        return hash(
-            (
-                self.trade_id,
-                self.timestamp,
-                self.pair,
-                self.is_sell,
-                self.price,
-                self.amount,
-            )
-        )
+        return hash((
+            self.trade_id,
+            self.timestamp,
+            self.pair,
+            self.is_sell,
+            self.price,
+            self.amount,
+        ))
 
     def __repr__(self):
         return pformat(vars(self))
@@ -133,7 +126,8 @@ class Trade:
     def from_our_list(pair, trade):
         return Trade(
             trade_id=trade["trade_id"],
-            timestamp=int(dateutil.parser.parse(trade["created_at"]).timestamp()),
+            timestamp=int(
+                dateutil.parser.parse(trade["created_at"]).timestamp()),
             pair=pair,
             is_sell=True if trade["side"] == "sell" else False,
             price=Wad.from_number(trade["price"]),
@@ -159,12 +153,12 @@ class CoinbaseApi(PyexAPI):
     logger = logging.getLogger()
 
     def __init__(
-        self,
-        api_server: str,
-        api_key: str,
-        secret_key: str,
-        password: str,
-        timeout: float,
+            self,
+            api_server: str,
+            api_key: str,
+            secret_key: str,
+            password: str,
+            timeout: float,
     ):
         assert isinstance(api_key, str)
         assert isinstance(secret_key, str)
@@ -191,11 +185,13 @@ class CoinbaseApi(PyexAPI):
     def get_orders(self, pair: str) -> List[Order]:
         assert isinstance(pair, str)
 
-        orders = self._http_authenticated("GET", f"/orders?product_id={pair}", {})
+        orders = self._http_authenticated("GET", f"/orders?product_id={pair}",
+                                          {})
 
         return list(map(lambda item: Order.from_list(item, pair), orders))
 
-    def place_order(self, pair: str, is_sell: bool, price: Wad, amount: Wad) -> str:
+    def place_order(self, pair: str, is_sell: bool, price: Wad,
+                    amount: Wad) -> str:
         assert isinstance(pair, str)
         assert isinstance(is_sell, bool)
         assert isinstance(price, Wad)
@@ -210,8 +206,7 @@ class CoinbaseApi(PyexAPI):
 
         self.logger.info(
             f"Placing order ({data['side']}, amount {data['size']} of {pair},"
-            f" price {data['price']})..."
-        )
+            f" price {data['price']})...")
 
         result = self._http_authenticated("POST", "/orders", data)
         order_id = result["id"]
@@ -250,7 +245,8 @@ class CoinbaseApi(PyexAPI):
         assert isinstance(page_number, int)
         assert page_number == 1
 
-        result = self._http_authenticated("GET", f"/fills?product_id={pair}", {})
+        result = self._http_authenticated("GET", f"/fills?product_id={pair}",
+                                          {})
 
         return list(map(lambda item: Trade.from_our_list(pair, item), result))
 
@@ -261,8 +257,8 @@ class CoinbaseApi(PyexAPI):
         limit = 100
 
         result = self._http_unauthenticated(
-            "GET", f"/products/{pair}/trades?before={page_number}&limit={limit}", {}
-        )
+            "GET",
+            f"/products/{pair}/trades?before={page_number}&limit={limit}", {})
 
         return list(map(lambda item: Trade.from_all_list(pair, item), result))
 
@@ -286,8 +282,7 @@ class CoinbaseApi(PyexAPI):
             )
         wallet_id = wallet["id"]
         result = self._http_authenticated(
-            "POST", f"/coinbase-accounts/{wallet_id}/addresses", {}
-        )
+            "POST", f"/coinbase-accounts/{wallet_id}/addresses", {})
         return Address(result["address"])
 
     def withdraw(self, amount: Wad, coin: str, address: Address) -> str:
@@ -334,8 +329,7 @@ class CoinbaseApi(PyexAPI):
                     "CB-ACCESS-PASSPHRASE": self.password,
                 },
                 timeout=self.timeout,
-            )
-        )
+            ))
 
     def _http_unauthenticated(self, method: str, resource: str, body: dict):
         assert isinstance(method, str)
@@ -350,8 +344,7 @@ class CoinbaseApi(PyexAPI):
                 url=f"{self.api_server}{resource}",
                 data=data,
                 timeout=self.timeout,
-            )
-        )
+            ))
 
     def _result(self, result) -> Optional[dict]:
         if not result.ok:

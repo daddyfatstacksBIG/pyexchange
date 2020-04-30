@@ -59,40 +59,41 @@ class Uniswap(Contract):
         assert isinstance(amount, Wad)
 
         return Wad(
-            self._contract.functions.getEthToTokenInputPrice(amount.value).call()
-        )
+            self._contract.functions.getEthToTokenInputPrice(
+                amount.value).call())
 
     def get_token_eth_input_price(self, amount: Wad):
         assert isinstance(amount, Wad)
 
         return Wad(
-            self._contract.functions.getTokenToEthInputPrice(amount.value).call()
-        )
+            self._contract.functions.getTokenToEthInputPrice(
+                amount.value).call())
 
     def get_eth_token_output_price(self, amount: Wad):
         assert isinstance(amount, Wad)
 
         return Wad(
-            self._contract.functions.getEthToTokenOutputPrice(amount.value).call()
-        )
+            self._contract.functions.getEthToTokenOutputPrice(
+                amount.value).call())
 
     def get_token_eth_output_price(self, amount: Wad):
         assert isinstance(amount, Wad)
 
         return Wad(
-            self._contract.functions.getTokenToEthOutputPrice(amount.value).call()
-        )
+            self._contract.functions.getTokenToEthOutputPrice(
+                amount.value).call())
 
     def get_current_liquidity(self):
         return Wad(
-            self._contract.functions.balanceOf(self.account_address.address).call()
-        )
+            self._contract.functions.balanceOf(
+                self.account_address.address).call())
 
     def add_liquidity(self, amount: Wad) -> Transact:
         assert isinstance(amount, Wad)
 
         min_liquidity = Wad.from_number(0.5) * amount
-        max_token = amount * self.get_exchange_rate() * Wad.from_number(1.00000001)
+        max_token = amount * self.get_exchange_rate() * Wad.from_number(
+            1.00000001)
 
         return Transact(
             self,
@@ -101,7 +102,8 @@ class Uniswap(Contract):
             self.exchange,
             self._contract,
             "addLiquidity",
-            [min_liquidity.value, max_token.value, self._deadline()],
+            [min_liquidity.value, max_token.value,
+             self._deadline()],
             {"value": amount.value},
         )
 

@@ -37,15 +37,15 @@ from web3 import Web3
 
 class Order:
     def __init__(
-        self,
-        order_id: int,
-        order_hash: str,
-        nonce: int,
-        timestamp: int,
-        is_sell: bool,
-        price: Wad,
-        amount: Wad,
-        money: Wad,
+            self,
+            order_id: int,
+            order_hash: str,
+            nonce: int,
+            timestamp: int,
+            is_sell: bool,
+            price: Wad,
+            amount: Wad,
+            money: Wad,
     ):
 
         assert isinstance(order_id, int)
@@ -118,7 +118,8 @@ class IDEX(Contract):
         """
         return IDEX(
             web3=web3,
-            address=Contract._deploy(web3, IDEX.abi, IDEX.bin, [fee_account.address]),
+            address=Contract._deploy(web3, IDEX.abi, IDEX.bin,
+                                     [fee_account.address]),
         )
 
     def __init__(self, web3: Web3, address: Address):
@@ -207,10 +208,8 @@ class IDEX(Contract):
         """
         assert isinstance(user, Address)
         return Wad(
-            self._contract.functions.balanceOf(
-                self.ETH_TOKEN.address, user.address
-            ).call()
-        )
+            self._contract.functions.balanceOf(self.ETH_TOKEN.address,
+                                               user.address).call())
 
     def deposit_token(self, token: Address, amount: Wad) -> Transact:
         """Deposits `amount` of ERC20 token `token` to IDEX.
@@ -275,8 +274,8 @@ class IDEX(Contract):
         assert isinstance(token, Address)
         assert isinstance(user, Address)
         return Wad(
-            self._contract.functions.balanceOf(token.address, user.address).call()
-        )
+            self._contract.functions.balanceOf(token.address,
+                                               user.address).call())
 
     def __repr__(self):
         return f"IDEX('{self.address}')"
@@ -309,27 +308,24 @@ class IDEXApi:
 
     def next_nonce(self) -> int:
         return int(
-            self._http_post("/returnNextNonce", {"address": self._our_address()})[
-                "nonce"
-            ]
-        )
+            self._http_post("/returnNextNonce",
+                            {"address": self._our_address()})["nonce"])
 
     def get_balances(self):
-        return self._http_post(
-            "/returnCompleteBalances", {"address": self._our_address()}
-        )
+        return self._http_post("/returnCompleteBalances",
+                               {"address": self._our_address()})
 
     def get_orders(self, pair: str) -> List[Order]:
         assert isinstance(pair, str)
 
-        result = self._http_post(
-            "/returnOpenOrders", {"market": pair, "address": self._our_address()}
-        )
+        result = self._http_post("/returnOpenOrders", {
+            "market": pair,
+            "address": self._our_address()
+        })
         return list(map(self._json_to_order, result))
 
-    def place_order(
-        self, pay_token: Address, pay_amount: Wad, buy_token: Address, buy_amount: Wad
-    ) -> Order:
+    def place_order(self, pay_token: Address, pay_amount: Wad,
+                    buy_token: Address, buy_amount: Wad) -> Order:
         """Places a new order.
 
         Args:
@@ -349,15 +345,11 @@ class IDEXApi:
         expires = 0
         nonce = self.next_nonce()
         order_hash = keccak_256(
-            encode_address(self.idex.address)
-            + encode_address(buy_token)
-            + encode_uint256(buy_amount.value)
-            + encode_address(pay_token)
-            + encode_uint256(pay_amount.value)
-            + encode_uint256(expires)
-            + encode_uint256(nonce)
-            + encode_address(Address(self._our_address()))
-        ).digest()
+            encode_address(self.idex.address) + encode_address(buy_token) +
+            encode_uint256(buy_amount.value) + encode_address(pay_token) +
+            encode_uint256(pay_amount.value) + encode_uint256(expires) +
+            encode_uint256(nonce) +
+            encode_address(Address(self._our_address()))).digest()
 
         signature = eth_sign(order_hash, self.idex.web3)
         v, r, s = to_vrs(signature)
@@ -393,8 +385,8 @@ class IDEXApi:
 
         nonce = self.next_nonce()
         signed_data = keccak_256(
-            encode_bytes(hexstring_to_bytes(order.order_hash)) + encode_uint256(nonce)
-        ).digest()
+            encode_bytes(hexstring_to_bytes(order.order_hash)) +
+            encode_uint256(nonce)).digest()
 
         signature = eth_sign(signed_data, self.idex.web3)
         v, r, s = to_vrs(signature)
@@ -454,8 +446,7 @@ class IDEXApi:
 
         if "error" in data:
             raise Exception(
-                f"IDEX API negative response: {http_response_summary(result)}"
-            )
+                f"IDEX API negative response: {http_response_summary(result)}")
 
         return data
 
@@ -464,10 +455,9 @@ class IDEXApi:
         assert isinstance(params, dict)
 
         return self._result(
-            requests.post(
-                url=f"{self.api_server}{resource}", json=params, timeout=self.timeout
-            )
-        )
+            requests.post(url=f"{self.api_server}{resource}",
+                          json=params,
+                          timeout=self.timeout))
 
     def __repr__(self):
         return f"IDEXApi()"

@@ -79,28 +79,36 @@ class OkcoinMockServer:
         elif "/api/spot/v3/orders_pending" in url:
             return MockedResponse(text=OkcoinMockServer.responses["orders1"])
         elif re.search(
-            r"\/api\/spot\/v3\/orders\?state=[\w_%]+&instrument_id=[\w\-_]+&limit=\d+",
-            url,
+                r"\/api\/spot\/v3\/orders\?state=[\w_%]+&instrument_id=[\w\-_]+&limit=\d+",
+                url,
         ):
             return MockedResponse(text=OkcoinMockServer.responses["orders2"])
-        elif re.search(r"\/api\/spot\/v3\/orders\?state=1&instrument_id=[\w\-_]+", url):
+        elif re.search(
+                r"\/api\/spot\/v3\/orders\?state=1&instrument_id=[\w\-_]+",
+                url):
             return MockedResponse(text="[]")  # assume no partial fills
-        elif re.search(r"\/api\/spot\/v3\/orders\?state=2&instrument_id=[\w\-_]+", url):
+        elif re.search(
+                r"\/api\/spot\/v3\/orders\?state=2&instrument_id=[\w\-_]+",
+                url):
             return MockedResponse(text=OkcoinMockServer.responses["trades1"])
         elif re.search(r"\/api\/spot\/v3\/instruments\/[\w\-_]+\/trades", url):
             return MockedResponse(text=OkcoinMockServer.responses["trades2"])
         else:
-            raise Exception("Unable to match HTTP GET request to canned response")
+            raise Exception(
+                "Unable to match HTTP GET request to canned response")
 
     @staticmethod
     def handle_post(url: str, data):
         assert data is not None
         if "/api/spot/v3/orders" in url:
-            return MockedResponse(text=OkcoinMockServer.responses["place_order1"])
+            return MockedResponse(
+                text=OkcoinMockServer.responses["place_order1"])
         elif "/api/spot/v3/cancel_orders" in url:
-            return MockedResponse(text=OkcoinMockServer.responses["cancel_order1"])
+            return MockedResponse(
+                text=OkcoinMockServer.responses["cancel_order1"])
         else:
-            raise Exception("Unable to match HTTP POST request to canned response")
+            raise Exception(
+                "Unable to match HTTP POST request to canned response")
 
 
 class TestOKCOIN:
@@ -133,7 +141,8 @@ class TestOKCOIN:
 
     def test_ticker(self, mocker):
         pair = "mkr_usdt"
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.ticker(pair)
         assert str(response["instrument_id"]).lower().replace("-", "_") == pair
         assert float(response["best_ask"]) > 0
@@ -141,7 +150,8 @@ class TestOKCOIN:
 
     def test_depth(self, mocker):
         pair = "mkr_usdt"
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.depth(pair)
         assert "bids" in response
         assert "asks" in response
@@ -150,7 +160,8 @@ class TestOKCOIN:
 
     def test_candles(self, mocker):
         pair = "mkr_usdt"
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.candles(pair, "1min")
         assert len(response) > 0
         for item in response:
@@ -162,7 +173,8 @@ class TestOKCOIN:
             assert float(item.close) > 0
 
     def test_get_balances(self, mocker):
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.get_balances()
         assert len(response) > 0
         assert "MKR" in response
@@ -196,10 +208,8 @@ class TestOKCOIN:
                 last_timestamp = order.timestamp
 
         if duplicate_count > 0:
-            print(
-                f"{duplicate_count} duplicate orders were found, "
-                f"starting at index {duplicate_first_found}"
-            )
+            print(f"{duplicate_count} duplicate orders were found, "
+                  f"starting at index {duplicate_first_found}")
         else:
             print("no duplicates were found")
         assert duplicate_count == 0
@@ -207,7 +217,8 @@ class TestOKCOIN:
 
     def test_get_orders(self, mocker):
         pair = "mkr_eth"
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.get_orders(pair)
         assert len(response) > 0
         for order in response:
@@ -219,7 +230,8 @@ class TestOKCOIN:
 
     def test_get_all_orders(self, mocker):
         pair = "mkr_eth"
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.get_orders_history(pair, 99)
         assert len(response) > 0
         for order in response:
@@ -229,10 +241,10 @@ class TestOKCOIN:
 
     def test_order_placement_and_cancellation(self, mocker):
         pair = "mkr_usdt"
-        mocker.patch("requests.post", side_effect=OkcoinMockServer.handle_request)
-        order_id = self.okcoin.place_order(
-            pair, True, Wad.from_number(639.3), Wad.from_number(0.15)
-        )
+        mocker.patch("requests.post",
+                     side_effect=OkcoinMockServer.handle_request)
+        order_id = self.okcoin.place_order(pair, True, Wad.from_number(639.3),
+                                           Wad.from_number(0.15))
         assert isinstance(order_id, str)
         assert order_id is not None
         cancel_result = self.okcoin.cancel_order(pair, order_id)
@@ -260,10 +272,8 @@ class TestOKCOIN:
                         missorted_found = True
                     last_timestamp = trade.timestamp
         if duplicate_count > 0:
-            print(
-                f"{duplicate_count} duplicate trades were found, "
-                f"starting at index {duplicate_first_found}"
-            )
+            print(f"{duplicate_count} duplicate trades were found, "
+                  f"starting at index {duplicate_first_found}")
         else:
             print("no duplicates were found")
         assert duplicate_count == 0
@@ -271,14 +281,16 @@ class TestOKCOIN:
 
     def test_get_trades(self, mocker):
         pair = "mkr_eth"
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.get_trades(pair)
         assert len(response) > 0
         TestOKCOIN.check_trades(response)
 
     def test_get_all_trades(self, mocker):
         pair = "mkr_usdt"
-        mocker.patch("requests.get", side_effect=OkcoinMockServer.handle_request)
+        mocker.patch("requests.get",
+                     side_effect=OkcoinMockServer.handle_request)
         response = self.okcoin.get_all_trades(pair)
         assert len(response) > 0
         TestOKCOIN.check_trades(response)
