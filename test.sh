@@ -6,4 +6,4 @@ py-testrpc -p 8889 &
 PYTHONPATH=$PYTHONPATH:./lib/pymaker py.test -x --cov=pyexchange --cov-report=term --cov-append tests/
 
 # kill the local server upon completion of tests
-pid=$(lsof -i:8889 -t); kill -TERM $pid || kill -KILL $pid
+pid=$(lsof -i:8889 -t); kill -TERM "$pid" || kill -KILL "${pid}"
